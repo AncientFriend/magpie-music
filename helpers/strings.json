@@ -1,0 +1,23 @@
+{
+  "cmds": {
+    "play": {
+
+    },
+    "pause": {
+      "success": "paused",
+      "done": "already paused",
+      "error": "nothing to pause"
+    },
+    "resume": {
+      "success": "resumed",
+      "done": "already playing",
+      "error": "nothing to resume"
+    },
+    "cancel": {
+      "success": "canceled",
+      "error": "nothing to cancel"
+    },
+    "say": {},
+    "ping": {}
+  }
+}

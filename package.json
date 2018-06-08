@@ -1,0 +1,37 @@
+{
+  "name": "test_bot",
+  "version": "1.0.0",
+  "description": "bot for discord",
+  "main": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AncientFriend/dicord-bot.git"
+  },
+  "keywords": [
+    "bot",
+    "discord"
+  ],
+  "author": "AncientFriend",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/AncientFriend/dicord-bot/issues"
+  },
+  "homepage": "https://github.com/AncientFriend/dicord-bot#readme",
+  "dependencies": {
+    "bufferutil": "^3.0.5",
+    "discord.js": "^11.3.2",
+    "erlpack": "github:discordapp/erlpack",
+    "ffmpeg-binaries": "^3.2.2-3",
+    "libsodium-wrappers": "^0.7.3",
+    "node-opus": "^0.3.0",
+    "opusscript": "0.0.6",
+    "snekfetch": "^4.0.2",
+    "uws": "^10.148.0",
+    "youtube-api": "^2.0.9",
+    "ytdl-core": "^0.20.4"
+  },
+  "devDependencies": {}
+}
