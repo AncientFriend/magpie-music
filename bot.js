@@ -14,6 +14,7 @@ const fs = require('fs');
 
 const queue = [];
 
+let cache;
 let files;
 let isRdy = true;
 let dispatcher;
@@ -26,17 +27,34 @@ client.on('ready', () => {
 
 client.on('message', async message => {
   if (message.author.bot) return;
-  if (message.content.indexOf(config.prefix) !== 0) return;
+  if (message.content.indexOf(config.prefix) !== 0 &&
+      message.content !== '1' &&
+      message.content !== '2' &&
+      message.content !== '3' &&
+      message.content !== '4' &&
+      message.content !== '5') return;
 
-  const args = message.content.slice(config.prefix.length).trim().split(/ +/g);
-  const cmd = args.shift().toLowerCase();
+  let args = message.content.slice(config.prefix.length).trim().split(/ +/g);
+  let cmd = args.shift().toLowerCase();
+
+  if(message.content === '1' ||
+  message.content === '2' ||
+  message.content === '3' ||
+  message.content === '4' ||
+  message.content === '5') {
+    if(cache[message.content] !== undefined) {
+      cmd = 'play'
+      console.log(cache);
+      args = [cache[parseInt(message.content) -1].id]
+    }
+  }
 
   switch (cmd) {
     case 'skip':
       try {
         dispatcher.destroy();
       } catch (e) {
-        message.channel.send('nothing to cancel');
+        message.channel.send(strings.cmds.skip.error);
       }
       break;
     case 'add':
@@ -45,34 +63,36 @@ client.on('message', async message => {
       break;
     case 'leave': {
       if (typeof voiceChannel === 'undefined') {
-        message.channel.send('bye');
+        message.channel.send(strings.cmds.leave.success);
         message.member.voiceChannel.leave();
       } else {
-        message.channel.send('im not in any voiceChannel atm');
+        message.channel.send(strings.cmds.leave.error);
       }
     }
       break;
     case 'join': {
-      if (typeof voiceChannel === 'undefined') {
+      if (typeof message.member.voiceChannel !== 'undefined') {
         message.member.voiceChannel.join()
         .then(() => {
-          message.channel.send('hi there');
+          message.channel.send(strings.cmds.join.success);
         });
       } else {
-        message.channel.send('im not in any voiceChannel atm');
+        message.channel.send(strings.cmds.join.error);
       }
     }
       break;
     case 'debug':
       console.log('debug started');
       BotHelper.search(args).then((response) => {
-        message.channel.send(response);
+        cache = response.cache
+        message.channel.send(response.output);
       }).catch((err) => {
         console.log('ERR - in-bot.js',err);
       })
       break;
     case 'cancel':
       try {
+        console.log(dispatcher);
         if (dispatcher) {
           queue.length = 0;
           dispatcher = dispatcher.destroy();
@@ -103,12 +123,12 @@ client.on('message', async message => {
       try {
         if (dispatcher.paused) {
           dispatcher.resume();
-          message.channel.send('resumed');
+          message.channel.send(strings.cmds.resume.success);
         } else {
-          message.channel.send('already playing');
+          message.channel.send(strings.cmds.resume.done);
         }
       } catch (err) {
-        message.channel.send('nothing to resume');
+        message.channel.send(strings.cmds.resume.error);
         console.log(err);
       }
       break;
@@ -117,23 +137,27 @@ client.on('message', async message => {
         isRdy = false;
         let voiceChannel = message.member.voiceChannel;
         if (!voiceChannel) {
-          message.channel.send('I cant find your VoiceChannel');
+          message.channel.send(strings.cmds.play.errorNotFound);
           isRdy = true;
           return true;
         }
         try {
           openConnection = await voiceChannel.join();
-          if (BotHelper.isYoutubeLink(args[0]) || Ytdl.validateID(args[0])) {
-            dispatcher = openConnection.playStream(Ytdl(args[0], {filter: 'audioonly'}));
-          } else if (BotHelper.isUrl(args[0])) {
-            dispatcher = openConnection.playStream(args[0]);
+          if (args.length === 0 && queue.length > 0) {
+            dispatcher = openConnection.playStream(Ytdl(queue.shift(), {filter: 'audioonly'}));
           } else {
-            files = fs.readdirSync(args[0]);
-            files = files.filter(file => Collections.fileExtensions.includes(BotHelper.getFileEnding(file)));
-            dispatcher = openConnection.playFile(args[0] + '/' + files[0]);
+            if (BotHelper.isYoutubeLink(args[0]) || Ytdl.validateID(args[0])) {
+              dispatcher = openConnection.playStream(Ytdl(args[0], {filter: 'audioonly'}));
+            } else if (BotHelper.isUrl(args[0])) {
+              dispatcher = openConnection.playStream(args[0]);
+            } else {
+              files = fs.readdirSync(args[0]);
+              files = files.filter(file => Collections.fileExtensions.includes(BotHelper.getFileEnding(file)));
+              dispatcher = openConnection.playFile(args[0] + '/' + files[0]);
+            }
           }
           dispatcher.on('end', end => {
-            console.log('LOG - end');
+            console.log('LOG - end of song');
             if (queue.length === 0) {
               voiceChannel.leave();
               dispatcher = dispatcher.destroy;
@@ -146,6 +170,7 @@ client.on('message', async message => {
           console.log(err);
         }
       } else {
+        message.channel.send(strings.cmds.play.success)
         queue.push(args[0]);
       }
       break;
@@ -159,7 +184,7 @@ client.on('message', async message => {
       message.channel.send(sayMessage);
       break;
     default:
-      message.channel.send('sry i dont understand that try one of these:' + Collections.commands);
+      message.channel.send(strings.cmds.collection.success + Collections.commands);
   }
 });
 
