@@ -1,6 +1,6 @@
 const Discord = require('discord.js');
 const Ytdl = require('ytdl-core');
-const Youtube = require('youtube-api')
+const Youtube = require('youtube-api');
 const config = require('./config.json');
 const request = require('snekfetch');
 
@@ -37,19 +37,39 @@ client.on('message', async message => {
   let args = message.content.slice(config.prefix.length).trim().split(/ +/g);
   let cmd = args.shift().toLowerCase();
 
-  if(message.content === '1' ||
-  message.content === '2' ||
-  message.content === '3' ||
-  message.content === '4' ||
-  message.content === '5') {
-    if(cache[message.content] !== undefined) {
-      cmd = 'play'
-      console.log(cache);
-      args = [cache[parseInt(message.content) -1].id]
+  // should only be used after listing titles for quick selection without the prefix
+  if (message.content === '1' ||
+      message.content === '2' ||
+      message.content === '3' ||
+      message.content === '4' ||
+      message.content === '5') {
+    if (cache[message.content - 1] !== undefined) {
+      if (typeof dispatcher === 'undefined') {
+        cmd = 'play';
+        console.log(cache);
+        args = [cache[parseInt(message.content) - 1].id];
+      } else {
+        cmd = 'add';
+        args = [cache[parseInt(message.content) - 1].id];
+      }
     }
   }
 
   switch (cmd) {
+    case 'cache':
+      let tempCache = '\nyourCache :\n';
+      cache.forEach((item, index) => {
+        tempCache = tempCache + (index + 1) + ' - - ' + item.title + '\n';
+      });
+      message.channel.send('cacheLength: ' + cache.length + tempCache);
+      break;
+    case 'queue':
+      let tempQueue = '\nyourQueue :\n';
+      queue.forEach((item, index) => {
+        tempQueue = tempQueue + index + ' - ' + item + '\n';
+      });
+      message.channel.send('queueLength: ' + queue.length + tempQueue);
+      break;
     case 'skip':
       try {
         dispatcher.destroy();
@@ -81,14 +101,14 @@ client.on('message', async message => {
       }
     }
       break;
-    case 'debug':
-      console.log('debug started');
+    case 'search':
+      console.log('search started');
       BotHelper.search(args).then((response) => {
-        cache = response.cache
+        cache = response.cache;
         message.channel.send(response.output);
       }).catch((err) => {
-        console.log('ERR - in-bot.js',err);
-      })
+        console.log('ERR - in-bot.js', err);
+      });
       break;
     case 'cancel':
       try {
@@ -170,7 +190,7 @@ client.on('message', async message => {
           console.log(err);
         }
       } else {
-        message.channel.send(strings.cmds.play.success)
+        message.channel.send(strings.cmds.play.success);
         queue.push(args[0]);
       }
       break;
@@ -184,6 +204,7 @@ client.on('message', async message => {
       message.channel.send(sayMessage);
       break;
     default:
+      console.log('default');
       message.channel.send(strings.cmds.collection.success + Collections.commands);
   }
 });

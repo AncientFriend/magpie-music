@@ -3,6 +3,14 @@
     "play": {
 
     },
+    "leave": {
+      "success": "bye",
+      "error": "cant leave right now"
+    },
+    "join": {
+      "success": "hi there",
+      "error": "sorry cant find your channel"
+    },
     "pause": {
       "success": "paused",
       "done": "already paused",
@@ -16,6 +24,9 @@
     "cancel": {
       "success": "canceled",
       "error": "nothing to cancel"
+    },
+    "collection": {
+      "success": "try one of these"
     },
     "say": {},
     "ping": {}
