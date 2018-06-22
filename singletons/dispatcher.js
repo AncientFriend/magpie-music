@@ -1,80 +1,84 @@
-export default class Dispatcher {
-  static instance = this.instance == null ? new Dispatcher() : this.instance;
+module.exports = (function () {
+  let instance; // prevent modification of "instance" variable
+  function Singleton () {
+    if (instance) {
+      return instance;
+    }
+    instance = this;
+        // Singleton initialization code
+  }
+    // instance accessor
+  Singleton.getInstance = () => {
+    return instance || new Singleton();
+  };
 
-  static dispatcher;
+  Singleton.prototype.dispatcher;
 
-  setDispatcher(dispatcher) {
+  Singleton.prototype.setDispatcher = (dispatcher) => {
     try {
       this.dispatcher = dispatcher;
+      console.warn(dispatcher, this.dispatcher);
       return true;
     } catch (e) {
       console.log('ERROR - setDispatcher', e);
       return false;
     }
-  }
+  };
 
-  resume() {
+  Singleton.prototype.resume = () => {
     try {
-      this.dispatcher.resume()
+      this.dispatcher.resume();
       return true;
     } catch (e) {
       console.log('ERROR - resume', e);
       return false;
     }
-  }
+  };
 
-  destroy() {
+  Singleton.prototype.destroy = () => {
     try {
-      this.dispatcher.destroy()
+      this.dispatcher.destroy();
       return true;
     } catch (e) {
       console.log('ERROR - destroy', e);
       return false;
     }
-  }
+  };
 
-  end() {
+  Singleton.prototype.end = () => {
     try {
-      this.dispatcher.end()
+      this.dispatcher.end();
       return true;
     } catch (e) {
       console.log('ERROR - end', e);
       return false;
     }
-  }
+  };
 
-
-  getPaused() {
+  Singleton.prototype.getPaused = () => {
     try {
-      return this.dispatcher.paused
+      return this.dispatcher.paused;
     } catch (e) {
       console.log('ERROR - getPaused', e);
       return false;
     }
-  }
+  };
 
-  getPlaying() {
+  Singleton.prototype.getPlaying = () => {
     try {
-      return this.dispatcher.playing
+      return this.dispatcher.playing;
     } catch (e) {
       return false;
     }
-  }
+  };
 
+  Singleton.prototype.on = (eventName, event) => {
+    try {
+      return this.dispatcher.on(eventName, event);
+    } catch (e) {
+      return false;
+    }
+  };
 
-  //TODO think how u do this
-  // this.dispatcher.on('end', end => {
-  //   try {
-  //     if (queue.length === 0) {
-  //       voiceChannel.leave();
-  //       dispatcher = dispatcher.destroy;
-  //       isRdy = true;
-  //     } else {
-  //       dispatcher = openConnection.playStream(Ytdl(queue.shift(), {filter: 'audioonly'}));
-  //     }
-  //   } catch (e) {
-  //     console.log('ERROR - onEnd', e);
-  //   } 
-  // });
-
-}
+  return Singleton;
+}());

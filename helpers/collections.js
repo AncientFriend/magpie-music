@@ -1,8 +1,6 @@
-module.exports.fileExtensions = [
-  'mp3'
-];
-
+// commands aviable in the bot
 module.exports.commands = [
+  // OLD
   '\nadd - adds song to playlist',
   '\nplay - plays song from given location e.g url, add them to queue if already plaing something',
   '\npause - pauses song rdy to resume',

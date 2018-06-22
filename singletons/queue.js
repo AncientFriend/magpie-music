@@ -1,9 +1,18 @@
-export default class Queue {
-  static instance = this.instance == null ? new Queue() : this.instance;
+module.exports = (function () {
+  let instance; // prevent modification of "instance" variable
+  function Singleton () {
+    if (instance) {
+      return instance;
+    }
+    instance = this;
+        // Singleton initialization code
+  }
+    // instance accessor
+  Singleton.getInstance = () => {
+    return instance || new Singleton();
+  };
 
-  static queue = [];
-
-  addToQueue(value) {
+  Singleton.prototype.addToQueue = (value) => {
     try {
       this.queue.push(value);
       return true;
@@ -11,18 +20,18 @@ export default class Queue {
       console.log('ERROR - addToQueue', e);
       return false;
     }
-  }
+  };
 
-  getQueue() {
+  Singleton.prototype.getQueue = () => {
     try {
       return this.queue;
     } catch (e) {
       console.log('ERROR - getQueue', e);
       return false;
     }
-  }
+  };
 
-  deleteFromQueue(index) {
+  Singleton.prototype.deleteFromQueue = (index) => {
     try {
       this.queue.splice(index - 1, 1);
       return true;
@@ -30,78 +39,78 @@ export default class Queue {
       console.log('ERROR - deleteFromQueue', e);
       return false;
     }
-  }
+  };
 
-  getNextTitle() {
+  Singleton.prototype.getNextTitle = () => {
     try {
       return this.queue.shift();
     } catch (e) {
       console.log('ERROR - getNextTitle', e);
       return false;
     }
-  }
+  };
 
-  clear() {
+  Singleton.prototype.clear = () => {
     try {
-      this.queue.length = 0
-      return true
+      this.queue.length = 0;
+      return true;
     } catch (e) {
       console.log('ERROR - clear', e);
-      return false
+      return false;
     }
-  }
+  };
 
-  isEmpty() {
+  Singleton.prototype.isEmpty = () => {
     try {
-      return this.queue.isEmpty()
+      return this.queue.isEmpty();
     } catch (e) {
       console.log('ERROR - isEmpty', e);
       return false;
     }
-  }
+  };
 
-  addMultiple(titleArray) {
+  Singleton.prototype.addMultiple = (titleArray) => {
     try {
-      titleArray.forEach(item) {
-        this.queue.push(item)
-      }
-      return true
+      titleArray.forEach(item => {
+        this.queue.push(item);
+      });
+      return true;
     } catch (e) {
       console.log('ERROR - addMultiple', e);
       return false;
     }
+  };
 
-  }
-
-  deleteMultiple(indexArray) {
+  Singleton.prototype.deleteMultiple = (indexArray) => {
     try {
-      indexArray.forEach(index) {
-        this.queue.slice(index - 1, 1)
-      }
-      return true
+      indexArray.forEach(index => {
+        this.queue.slice(index - 1, 1);
+      });
+      return true;
     } catch (e) {
       console.log('ERROR - deleteMultiple', e);
       return false;
     }
-  }
+  };
 
-  exportQueue() {
+  Singleton.prototype.exportQueue = () => {
     try {
-      return JSON.stringify(this.queue)
+      return JSON.stringify(this.queue);
     } catch (e) {
       console.log('ERROR - exportQueue', e);
       return false;
     }
-  }
+  };
 
-  importQueue(queueJson) {
+  Singleton.prototype.importQueue = (queueJson) => {
     try {
-      this.queue = JSON.parse(queueJson)
-      return true
+      this.queue = JSON.parse(queueJson);
+      return true;
     } catch (e) {
       console.log('ERROR - importQueue', e);
       return false;
     }
-  }
+  };
 
-}
+  return Singleton;
+}());
