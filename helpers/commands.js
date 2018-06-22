@@ -19,7 +19,8 @@ module.exports.play = async (args, message) => {
   try {
     openConnection = await voiceChannel.join();
     if (args.length === 0 && queue.length > 0) {
-      dispatcher.setDispatcher(openConnection.playStream(Ytdl(queue.shift(), {filter: 'audioonly'})));
+      const conn = openConnection.playStream(Ytdl(queue.shift(), {filter: 'audioonly'}));
+      dispatcher.setDispatcher(conn);
     } else {
       if (BotHelper.isYoutubeLink(args[0]) || Ytdl.validateID(args[0])) {
         const conn = openConnection.playStream(Ytdl(args[0], {filter: 'audioonly'}));
@@ -32,10 +33,11 @@ module.exports.play = async (args, message) => {
       console.log('LOG - end of song');
       if (queue.length === 0) {
         voiceChannel.leave();
-        dispatcher.setDispatcher(dispatcher.destroy);
+        const conn = dispatcher.destroy;
+        dispatcher.setDispatcher(conn);
         isRdy = true;
       } else {
-        dispatcher.setDispatcher(openConnection.playStream(Ytdl(queue.shift(), {filter: 'audioonly'})));
+        const conn = openConnection.playStream(Ytdl(queue.shift(), {filter: 'audioonly'}));
       }
     });
   } catch (err) {
