@@ -19,12 +19,12 @@ module.exports.play = async (args, message) => {
   try {
     openConnection = await voiceChannel.join();
     if (args.length === 0 && queue.length > 0) {
-      const conn = openConnection.playStream(Ytdl(queue.shift(), {filter: 'audioonly'}));
-      dispatcher.setDispatcher(conn);
+      const conn1 = openConnection.playStream(Ytdl(queue.shift(), {filter: 'audioonly'}));
+      dispatcher.setDispatcher(conn1);
     } else {
       if (BotHelper.isYoutubeLink(args[0]) || Ytdl.validateID(args[0])) {
-        const conn = openConnection.playStream(Ytdl(args[0], {filter: 'audioonly'}));
-        dispatcher.setDispatcher(conn);
+        const conn2 = openConnection.playStream(Ytdl(args[0], {filter: 'audioonly'}));
+        dispatcher.setDispatcher(conn2);
       } else {
         console.log('not good');
       }
@@ -33,11 +33,12 @@ module.exports.play = async (args, message) => {
       console.log('LOG - end of song');
       if (queue.length === 0) {
         voiceChannel.leave();
-        const conn = dispatcher.destroy;
-        dispatcher.setDispatcher(conn);
+        const conn3 = dispatcher.destroy;
+        dispatcher.setDispatcher(conn3);
         isRdy = true;
       } else {
-        const conn = openConnection.playStream(Ytdl(queue.shift(), {filter: 'audioonly'}));
+        const conn4 = openConnection.playStream(Ytdl(queue.shift(), {filter: 'audioonly'}));
+        dispatcher.setDispatcher(conn4);
       }
     });
   } catch (err) {
