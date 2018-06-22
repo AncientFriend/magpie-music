@@ -22,7 +22,8 @@ module.exports.play = async (args, message) => {
       dispatcher.setDispatcher(openConnection.playStream(Ytdl(queue.shift(), {filter: 'audioonly'})));
     } else {
       if (BotHelper.isYoutubeLink(args[0]) || Ytdl.validateID(args[0])) {
-        dispatcher.setDispatcher(openConnection.playStream(Ytdl(args[0], {filter: 'audioonly'})));
+        const conn = openConnection.playStream(Ytdl(args[0], {filter: 'audioonly'}));
+        dispatcher.setDispatcher(conn);
       } else {
         console.log('not good');
       }
