@@ -10,38 +10,104 @@ const dispatcher = Dispatcher.getInstance();
 const queue = Queue.getInstance();
 
 module.exports.play = async (args, message) => {
-  let voiceChannel = message.member.voiceChannel;
-  if (!voiceChannel) {
-    message.channel.send(strings.cmds.play.errorNotFound);
-    isRdy = true;
-    return true;
-  }
+  console.warn('Play');
+  let openConnection;
+  let conn;
   try {
-    openConnection = await voiceChannel.join();
-    if (args.length === 0 && queue.length > 0) {
-      const conn1 = openConnection.playStream(Ytdl(queue.shift(), {filter: 'audioonly'}));
-      dispatcher.setDispatcher(conn1);
-    } else {
-      if (BotHelper.isYoutubeLink(args[0]) || Ytdl.validateID(args[0])) {
-        const conn2 = openConnection.playStream(Ytdl(args[0], {filter: 'audioonly'}));
-        dispatcher.setDispatcher(conn2);
-      } else {
-        console.log('not good');
-      }
+    let voiceChannel = message.member.voiceChannel;
+    if (!voiceChannel) {
+      message.channel.send(strings.cmds.play.errorNotFound);
+      isRdy = true;
+      return true;
     }
-    dispatcher.on('end', end => {
-      console.log('LOG - end of song');
-      if (queue.length === 0) {
-        voiceChannel.leave();
-        const conn3 = dispatcher.destroy;
-        dispatcher.setDispatcher(conn3);
-        isRdy = true;
-      } else {
-        const conn4 = openConnection.playStream(Ytdl(queue.shift(), {filter: 'audioonly'}));
-        dispatcher.setDispatcher(conn4);
-      }
-    });
-  } catch (err) {
+    openConnection = await voiceChannel.join();
+    playSong(args[0], openConnection);
+  } catch (e) {
     console.log('ERROR - catch', err);
   }
+};
+
+module.exports.add = async (args, message) => {
+  try {
+    args.forEach((argument, index) => {
+      if (BotHelper.isYoutubeLink(argument) || Ytdl.validateID(argument)) {
+        getInfo(argument);
+        queue.addToQueue(argument);
+      } else {
+        const post = (index === 0) ? 'st' : 'ed';
+        message.channel.send('for the ' + (index + 1) + post + ' argument no source could be found');
+      }
+    });
+  } catch (e) {
+    console.log('ERROR - catch', e);
+  }
+};
+
+module.exports.queue = async (args, message) => {
+  try {
+    let response = queue.getQueue();
+    if (args[0]) response.length = args[0];
+    message.channel.send(response);
+  } catch (e) {
+    console.log('ERROR - catch', e);
+  }
+};
+
+module.exports.leave = async (args, message) => {
+  try {
+    let voiceChannel = message.member.voiceChannel;
+    if (voiceChannel) {
+      console.warn('1', voiceChannel);
+      try {
+        console.warn('2');
+        voiceChannel.leave();
+      } catch (e) {
+        console.log('ERROR - e', e);
+      } finally {
+
+      }
+    }
+  } catch (e) {
+    console.log('ERROR - catch', e);
+  }
+};
+
+playSong = (song, connection) => {
+  console.warn('Playsong');
+  try {
+    if (BotHelper.isYoutubeLink(song) || Ytdl.validateID(song)) {
+      const conn = connection.playStream(Ytdl(song, {filter: 'audioonly'}));
+      dispatcher.setDispatcher(conn);
+    } else {
+      console.log('please use youtubelinks or id\'s');
+    }
+  } catch (e) {
+    console.log('ERROR - catch', e);
+  }
+  dispatcher.on('end', end => {
+    if (!queue.isEmpty()) {
+      playSong(queue.getNextTitle(), connection);
+    } else {
+      dispatcher.leave();
+    }
+    // leave if no queue else next song
+  });
+};
+
+getInfo = async (data) => {
+  // TODO
+  try {
+    let url;
+    if (BotHelper.isYoutubeLink(data)) {
+      url = 'https://www.googleapis.com/youtube/v3/videos?url=' + data + '&part=contentDetails&key=' + config.Api_Key;
+    } else if (Ytdl.validateID(data)) {
+      url = 'https://www.googleapis.com/youtube/v3/videos?id=' + data + '&part=contentDetails&key=' + config.Api_Key;
+    }
+
+    response = await request.get(url);
+    console.warn('LOG - request', request);
+  } catch (e) {
+    console.log('ERROR - catch', e);
+  }
+  // 'https://www.googleapis.com/youtube/v3/videos?url=' + url + '&part=contentDetails&key='{YOUR_API_KEY}
 };

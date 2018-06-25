@@ -12,12 +12,11 @@ module.exports = (function () {
     return instance || new Singleton();
   };
 
-  Singleton.prototype.dispatcher;
+  this.dispatcher;
 
   Singleton.prototype.setDispatcher = (dispatcher) => {
     try {
       this.dispatcher = dispatcher;
-      console.warn(dispatcher, this.dispatcher);
       return true;
     } catch (e) {
       console.log('ERROR - setDispatcher', e);

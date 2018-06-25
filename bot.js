@@ -15,6 +15,7 @@ const Cache = require('./singletons/cache');
 const client = new Discord.Client();
 const fs = require('fs');
 
+const dispatcher = Dispatcher.getInstance();
 const queue = Queue.getInstance();
 const cache = Cache.getInstance();
 
@@ -35,6 +36,13 @@ client.on('message', async message => {
   try {
     switch (cmd) {
       case 'play':
+      /* NOTE play
+      * checks arguments for youtube links and ids
+      * plays the given song
+      * if no argument given plays first out of queue
+      * TODO if multiple arguments are given plays first and adds the rest to queue
+      */
+        console.warn(isRdy);
         if (isRdy) {
           isRdy = false;
           Commands.play(args, message);
@@ -43,7 +51,36 @@ client.on('message', async message => {
         isRdy = true;
         break;
       case 'add':
-        queue.addToQueue('entry01');
+      /* NOTE add
+      * checks arguments for youtube links and ids
+      * adds the given songs to the queue
+      */
+        if (isRdy) {
+          idRdy = false;
+          Commands.add(args, message);
+        }
+        console.log('done');
+        isRdy = true;
+        break;
+      case 'queue':
+      /* NOTE queue
+      * displays the queue
+      * if argument given displays x titles of the q
+      */
+        if (isRdy) {
+          idRdy = false;
+          Commands.queue(args, message);
+        }
+        console.log('done');
+        isRdy = true;
+        break;
+      case 'leave':
+        if (isRdy) {
+          idRdy = false;
+          Commands.leave(args, message);
+        }
+        console.log('done');
+        isRdy = true;
         break;
       default:
         console.log('LOG - default');

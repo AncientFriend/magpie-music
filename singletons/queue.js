@@ -12,9 +12,13 @@ module.exports = (function () {
     return instance || new Singleton();
   };
 
+  this.queue = [];
+
   Singleton.prototype.addToQueue = (value) => {
     try {
+      console.warn('before', this.queue);
       this.queue.push(value);
+      console.warn('after', this.queue);
       return true;
     } catch (e) {
       console.log('ERROR - addToQueue', e);
@@ -62,7 +66,8 @@ module.exports = (function () {
 
   Singleton.prototype.isEmpty = () => {
     try {
-      return this.queue.isEmpty();
+      console.warn('returning:', this.queue.length < 1);
+      return this.queue.length < 1;
     } catch (e) {
       console.log('ERROR - isEmpty', e);
       return false;
