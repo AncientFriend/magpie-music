@@ -46,8 +46,9 @@ module.exports.add = async (args, message) => {
     args.forEach((argument, index) => {
       const id = getId(argument);
       if (id) {
-        const videoInfo = getInfo(id);
-        queue.addToQueue(id);// TODO change to info object
+        const info = getInfo(id, message);
+        // TODO add info to queue
+        queue.addToQueue(id);
       } else {
         const post = (index === 0) ? 'st' : 'ed';
         message.channel.send('for the ' + (index + 1) + post + ' argument no source could be found');
@@ -147,20 +148,25 @@ playSong = (song, connection) => {
   });
 };
 
-getInfo = async (data) => {
+getInfo = async (data, message) => {
   // TODO
   try {
     let url;
-    console.warn('LOG - data', data);
     url = 'https://www.googleapis.com/youtube/v3/videos?id=' + data + '&part=contentDetails&key=' + config.Api_Key;
     const timeResponse = await request.get(url);
-    duration = convertTime(timeResponse.body.items[0].contentDetails.duration);
+    let duration = convertTime(timeResponse.body.items[0].contentDetails.duration);
     const dataResponse = BotHelper.search([data]);
-    console.warn('LOG - dataresponse', dataResponse);
+    let title = dataResponse.title;
+    let requester = message.member.user.username;
+    let info = {
+      title,
+      duration,
+      requester
+    };
+    return info;
   } catch (e) {
     console.log('ERROR - catch', e);
   }
-  // 'https://www.googleapis.com/youtube/v3/videos?url=' + url + '&part=contentDetails&key='{YOUR_API_KEY}
 };
 
 getId = (url) => {
