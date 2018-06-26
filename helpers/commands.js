@@ -55,18 +55,45 @@ module.exports.queue = async (args, message) => {
 
 module.exports.leave = async (args, message) => {
   try {
-    let voiceChannel = message.member.voiceChannel;
+    const voiceChannel = message.member.voiceChannel;
     if (voiceChannel) {
-      console.warn('1', voiceChannel);
       try {
-        console.warn('2');
         voiceChannel.leave();
       } catch (e) {
         console.log('ERROR - e', e);
-      } finally {
-
       }
     }
+  } catch (e) {
+    console.log('ERROR - catch', e);
+  }
+};
+
+module.exports.join = async (args, message) => {
+  try {
+    let voiceChannel = message.member.voiceChannel;
+    if (voiceChannel) {
+      try {
+        voiceChannel.join();
+      } catch (e) {
+        console.log('ERROR - e', e);
+      }
+    }
+  } catch (e) {
+    console.log('ERROR - catch', e);
+  }
+};
+
+module.exports.pause = async (args, message) => {
+  try {
+    dispatcher.pause();
+  } catch (e) {
+    console.log('ERROR - catch', e);
+  }
+};
+
+module.exports.resume = async (args, message) => {
+  try {
+    dispatcher.resume();
   } catch (e) {
     console.log('ERROR - catch', e);
   }

@@ -37,11 +37,11 @@ client.on('message', async message => {
     switch (cmd) {
       case 'play':
       /* NOTE play
-      * checks arguments for youtube links and ids
-      * plays the given song
-      * if no argument given plays first out of queue
-      * TODO if multiple arguments are given plays first and adds the rest to queue
-      */
+       * checks arguments for youtube links and ids
+       * plays the given song
+       * if no argument given plays first out of queue
+       * TODO if multiple arguments are given plays first and adds the rest to queue
+       */
         console.warn(isRdy);
         if (isRdy) {
           isRdy = false;
@@ -52,9 +52,9 @@ client.on('message', async message => {
         break;
       case 'add':
       /* NOTE add
-      * checks arguments for youtube links and ids
-      * adds the given songs to the queue
-      */
+       * checks arguments for youtube links and ids
+       * adds the given songs to the queue
+       */
         if (isRdy) {
           idRdy = false;
           Commands.add(args, message);
@@ -64,9 +64,9 @@ client.on('message', async message => {
         break;
       case 'queue':
       /* NOTE queue
-      * displays the queue
-      * if argument given displays x titles of the q
-      */
+       * displays the queue
+       * if argument given displays x titles of the q
+       */
         if (isRdy) {
           idRdy = false;
           Commands.queue(args, message);
@@ -75,9 +75,46 @@ client.on('message', async message => {
         isRdy = true;
         break;
       case 'leave':
+      /* NOTE leave
+       * tries to leave the callers voiceChannel
+       */
         if (isRdy) {
           idRdy = false;
           Commands.leave(args, message);
+        }
+        console.log('done');
+        isRdy = true;
+        break;
+      case 'join':
+      /* NOTE join
+       * tries to join the callers voiceChannel
+       */
+        if (isRdy) {
+          idRdy = false;
+          Commands.join(args, message);
+        }
+        console.log('done');
+        isRdy = true;
+        break;
+      case 'pause':
+      /* NOTE pause
+       * pauses song thats playing atm
+       */
+        if (isRdy) {
+          idRdy = false;
+          Commands.pause(args, message);
+        }
+        console.log('done');
+        isRdy = true;
+        break;
+      case 'continue':
+      case 'resume':
+      /* NOTE pause
+       * resumes song thats paused atm
+       */
+        if (isRdy) {
+          idRdy = false;
+          Commands.resume(args, message);
         }
         console.log('done');
         isRdy = true;

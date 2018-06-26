@@ -21,13 +21,9 @@
   },
   "homepage": "https://github.com/AncientFriend/dicord-bot#readme",
   "dependencies": {
-    "bufferutil": "^3.0.5",
     "discord.js": "^11.3.2",
-    "erlpack": "github:discordapp/erlpack",
     "ffmpeg-binaries": "^3.2.2-3",
-    "libsodium-wrappers": "^0.7.3",
     "node-opus": "^0.3.0",
-    "opusscript": "0.0.6",
     "snekfetch": "^4.0.2",
     "uws": "^10.148.0",
     "youtube-api": "^2.0.9",

@@ -63,6 +63,24 @@ module.exports = (function () {
     }
   };
 
+  Singleton.prototype.pause = () => {
+    try {
+      this.dispatcher.pause();
+    } catch (e) {
+      console.log('ERROR - getPaused', e);
+      return false;
+    }
+  };
+
+  Singleton.prototype.resume = () => {
+    try {
+      this.dispatcher.resume();
+    } catch (e) {
+      console.log('ERROR - getPaused', e);
+      return false;
+    }
+  };
+
   Singleton.prototype.getPlaying = () => {
     try {
       return this.dispatcher.playing;
