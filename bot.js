@@ -109,7 +109,7 @@ client.on('message', async message => {
         break;
       case 'continue':
       case 'resume':
-      /* NOTE pause
+      /* NOTE resume
        * resumes song thats paused atm
        */
         if (isRdy) {

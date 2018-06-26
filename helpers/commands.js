@@ -6,6 +6,7 @@ const Youtube = require('youtube-api');
 const config = require('../config.json');
 const request = require('snekfetch');
 const BotHelper = require('./botHelper.js');
+const moment = require('moment');
 
 const dispatcher = Dispatcher.getInstance();
 const queue = Queue.getInstance();
@@ -43,9 +44,10 @@ module.exports.play = async (args, message) => {
 module.exports.add = async (args, message) => {
   try {
     args.forEach((argument, index) => {
-      if (BotHelper.isYoutubeLink(argument) || Ytdl.validateID(argument)) {
-        // getInfo(argument);
-        queue.addToQueue(argument);
+      const id = getId(argument);
+      if (id) {
+        const videoInfo = getInfo(id);
+        queue.addToQueue(id);// TODO change to info object
       } else {
         const post = (index === 0) ? 'st' : 'ed';
         message.channel.send('for the ' + (index + 1) + post + ' argument no source could be found');
@@ -126,8 +128,9 @@ module.exports.debug = async (args, message) => {
 
 playSong = (song, connection) => {
   try {
-    if (BotHelper.isYoutubeLink(song) || Ytdl.validateID(song)) {
-      const conn = connection.playStream(Ytdl(song, {filter: 'audioonly'}));
+    const id = getId(song);
+    if (id) {
+      const conn = connection.playStream(Ytdl(id, {filter: 'audioonly'}));
       dispatcher.setDispatcher(conn);
     } else {
       console.log('please use youtubelinks or id\'s');
@@ -141,7 +144,6 @@ playSong = (song, connection) => {
     } else {
       connection.channel.leave();
     }
-    // leave if no queue else next song
   });
 };
 
@@ -149,16 +151,39 @@ getInfo = async (data) => {
   // TODO
   try {
     let url;
-    if (BotHelper.isYoutubeLink(data)) {
-      url = 'https://www.googleapis.com/youtube/v3/videos?url=' + data + '&part=contentDetails&key=' + config.Api_Key;
-    } else if (Ytdl.validateID(data)) {
-      url = 'https://www.googleapis.com/youtube/v3/videos?id=' + data + '&part=contentDetails&key=' + config.Api_Key;
-    }
-
-    response = await request.get(url);
-    console.warn('LOG - request', request);
+    console.warn('LOG - data', data);
+    url = 'https://www.googleapis.com/youtube/v3/videos?id=' + data + '&part=contentDetails&key=' + config.Api_Key;
+    const timeResponse = await request.get(url);
+    duration = convertTime(timeResponse.body.items[0].contentDetails.duration);
+    const dataResponse = BotHelper.search([data]);
+    console.warn('LOG - dataresponse', dataResponse);
   } catch (e) {
     console.log('ERROR - catch', e);
   }
   // 'https://www.googleapis.com/youtube/v3/videos?url=' + url + '&part=contentDetails&key='{YOUR_API_KEY}
+};
+
+getId = (url) => {
+  try {
+    if (BotHelper.isYoutubeLink(url)) {
+      if (url.includes('youtu.be')) {
+        return url.split('youtu.be/')[1];
+      } else {
+        return url.split('v=')[1].split('&')[0];
+      }
+    } else {
+      if (Ytdl.validateID(url)) {
+        return url;
+      } else {
+        return false;
+      }
+    }
+  } catch (error) {
+    return false;
+  }
+};
+
+convertTime = (isoTime) => {
+  const duration = moment.duration(isoTime);
+  return moment.utc(duration.as('milliseconds')).format('hh:mm:ss');
 };

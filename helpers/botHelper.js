@@ -1,5 +1,5 @@
 const fs = require('fs');
-const config = require('../config.json')
+const config = require('../config.json');
 const request = require('snekfetch');
 
 module.exports.getFileEnding = function getFileEnding (filename) {
@@ -24,39 +24,39 @@ module.exports.isYoutubeLink = function isYoutubeLink (url) {
   if (res == null) {
     return false;
   } else {
-      if (url.includes('youtube')) {
-        return true;
-      } else {
-        return false;
-      }
+    if (url.includes('youtube') || url.includes('youtu.be')) {
+      return true;
+    } else {
+      return false;
     }
+  }
 };
 
 module.exports.search = function search (args) {
   console.log('search started');
-  const proccesedResponse = []
+  const proccesedResponse = [];
   const url = 'https://www.googleapis.com/youtube/v3/search?key=' +
   config.Api_Key +
   '&maxResults=5' +
   '&part=snippet' +
   '&type=video' +
   '&q=' + args.join(' ');
-  console.log('URL - ',url);
+  console.log('URL - ', url);
   return request.get(url)
   .then((response) => {
     console.log('response', response.body.items[0].snippet);
-    response.body.items.forEach((item, index) => {proccesedResponse.push({id: item.id.videoId, index, title: item.snippet.title}) })
+    response.body.items.forEach((item, index) => { proccesedResponse.push({id: item.id.videoId, index, title: item.snippet.title}); });
     output = [];
     proccesedResponse.forEach((item, index) => {
       output.push(
-        (item.index+1) + "  -  " + item.title + "\n"
-      )
-    })
+        (item.index + 1) + '  -  ' + item.title + '\n'
+      );
+    });
 
     ResponseObject = {
       output: output,
       cache: proccesedResponse
-    }
-    return ResponseObject
-  }).catch((err) => {throw err})
-}
+    };
+    return ResponseObject;
+  }).catch((err) => { throw err; });
+};
