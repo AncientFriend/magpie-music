@@ -56,7 +56,7 @@ module.exports = (function () {
 
   Singleton.prototype.getPaused = () => {
     try {
-      return this.dispatcher.paused;
+      return this.dispatcher ? this.dispatcher.paused : false;
     } catch (e) {
       console.log('ERROR - getPaused', e);
       return false;

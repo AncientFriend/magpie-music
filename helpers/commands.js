@@ -1,4 +1,5 @@
 const Dispatcher = require('../singletons/dispatcher');
+const Cache = require('../singletons/cache');
 const Queue = require('../singletons/queue');
 const Ytdl = require('ytdl-core');
 const Youtube = require('youtube-api');
@@ -8,6 +9,7 @@ const BotHelper = require('./botHelper.js');
 
 const dispatcher = Dispatcher.getInstance();
 const queue = Queue.getInstance();
+const cache = Cache.getInstance();
 
 module.exports.play = async (args, message) => {
   console.warn('Play');
@@ -21,9 +23,20 @@ module.exports.play = async (args, message) => {
       return true;
     }
     openConnection = await voiceChannel.join();
-    playSong(args[0], openConnection);
+    dispatcherIsPaused = dispatcher.getPaused();
+    queueIsEmpty = queue.isEmpty();
+
+    if (dispatcherIsPaused) {
+      dispatcher.resume();
+    } else if (args.length > 0) {
+      playSong(args[0], openConnection);
+    } else if (!queueIsEmpty) {
+      playSong(queue.getNextTitle(), openConnection);
+    } else {
+      console.log('queue is empty and no arguments given');
+    }
   } catch (e) {
-    console.log('ERROR - catch', err);
+    console.log('ERROR - catch', e);
   }
 };
 
@@ -31,7 +44,7 @@ module.exports.add = async (args, message) => {
   try {
     args.forEach((argument, index) => {
       if (BotHelper.isYoutubeLink(argument) || Ytdl.validateID(argument)) {
-        getInfo(argument);
+        // getInfo(argument);
         queue.addToQueue(argument);
       } else {
         const post = (index === 0) ? 'st' : 'ed';
@@ -99,8 +112,19 @@ module.exports.resume = async (args, message) => {
   }
 };
 
+module.exports.debug = async (args, message) => {
+  try {
+    dispatcher.setDispatcher();
+    cache.setCache();
+    queue.clear();
+    message.member.voiceChannel.leave();
+    if (args[0] === 'rejoin' || args[0] === '-r') message.member.voiceChannel.join();
+  } catch (e) {
+    console.log('ERROR - catch', e);
+  }
+};
+
 playSong = (song, connection) => {
-  console.warn('Playsong');
   try {
     if (BotHelper.isYoutubeLink(song) || Ytdl.validateID(song)) {
       const conn = connection.playStream(Ytdl(song, {filter: 'audioonly'}));
@@ -115,7 +139,7 @@ playSong = (song, connection) => {
     if (!queue.isEmpty()) {
       playSong(queue.getNextTitle(), connection);
     } else {
-      dispatcher.leave();
+      connection.channel.leave();
     }
     // leave if no queue else next song
   });

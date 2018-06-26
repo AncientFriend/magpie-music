@@ -39,7 +39,7 @@ client.on('message', async message => {
       /* NOTE play
        * checks arguments for youtube links and ids
        * plays the given song
-       * if no argument given plays first out of queue
+       * if no argument given plays first out of queue or resumes paused song
        * TODO if multiple arguments are given plays first and adds the rest to queue
        */
         console.warn(isRdy);
@@ -116,6 +116,15 @@ client.on('message', async message => {
           idRdy = false;
           Commands.resume(args, message);
         }
+        console.log('done');
+        isRdy = true;
+        break;
+      case 'debug':
+      /* NOTE debug
+       * clears everything and leaved channels in order to get the bot unstuck
+       * if rejoin or -r is given in the arguments it'll rejoin voice after getting unstuck
+       */
+        Commands.debug(args, message);
         console.log('done');
         isRdy = true;
         break;
