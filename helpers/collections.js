@@ -1,11 +1,14 @@
 // commands aviable in the bot
 module.exports.commands = [
   // OLD
-  '\nadd - adds song to playlist',
-  '\nplay - plays song from given location e.g url, add them to queue if already plaing something',
-  '\npause - pauses song rdy to resume',
-  '\nresume - resumes paused song',
-  '\ncancel - cancels player',
-  '\nping - well u know what it does',
-  '\nsay - let the bot speak for you'
+  'play',
+  'add',
+  'queue',
+  'leave',
+  'join',
+  'pause',
+  'continue/resume',
+  'debug',
+  'clear/empty/clearall/clearqueue/emptyqueue',
+  'list'
 ];

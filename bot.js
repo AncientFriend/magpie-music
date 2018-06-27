@@ -46,8 +46,8 @@ client.on('message', async message => {
         if (isRdy) {
           isRdy = false;
           Commands.play(args, message);
+          console.log('done');
         }
-        console.log('done');
         isRdy = true;
         break;
       case 'add':
@@ -58,8 +58,8 @@ client.on('message', async message => {
         if (isRdy) {
           idRdy = false;
           Commands.add(args, message);
+          console.log('done');
         }
-        console.log('done');
         isRdy = true;
         break;
       case 'queue':
@@ -70,8 +70,8 @@ client.on('message', async message => {
         if (isRdy) {
           idRdy = false;
           Commands.queue(args, message);
+          console.log('done');
         }
-        console.log('done');
         isRdy = true;
         break;
       case 'leave':
@@ -81,8 +81,8 @@ client.on('message', async message => {
         if (isRdy) {
           idRdy = false;
           Commands.leave(args, message);
+          console.log('done');
         }
-        console.log('done');
         isRdy = true;
         break;
       case 'join':
@@ -92,8 +92,8 @@ client.on('message', async message => {
         if (isRdy) {
           idRdy = false;
           Commands.join(args, message);
+          console.log('done');
         }
-        console.log('done');
         isRdy = true;
         break;
       case 'pause':
@@ -103,8 +103,8 @@ client.on('message', async message => {
         if (isRdy) {
           idRdy = false;
           Commands.pause(args, message);
+          console.log('done');
         }
-        console.log('done');
         isRdy = true;
         break;
       case 'continue':
@@ -115,8 +115,8 @@ client.on('message', async message => {
         if (isRdy) {
           idRdy = false;
           Commands.resume(args, message);
+          console.log('done');
         }
-        console.log('done');
         isRdy = true;
         break;
       case 'debug':
@@ -126,6 +126,34 @@ client.on('message', async message => {
        */
         Commands.debug(args, message);
         console.log('done');
+        isRdy = true;
+        break;
+      case 'emptyqueue':
+      case 'clearqueue':
+      case 'clearall':
+      case 'empty':
+      case 'clear':
+      /* NOTE clear
+       * clears queue
+       */
+        if (isRdy) {
+          idRdy = false;
+          Commands.clear(args, message);
+          console.log('done');
+        }
+        isRdy = true;
+        break;
+      case 'listcommands':
+      case 'commands':
+      case 'list':
+      /* NOTE list
+       * lists all documented commands // TODO and their functionallity
+       */
+        if (isRdy) {
+          idRdy = false;
+          Commands.list(args, message);
+          console.log('done');
+        }
         isRdy = true;
         break;
       default:

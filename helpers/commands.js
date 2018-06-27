@@ -7,6 +7,7 @@ const config = require('../config.json');
 const request = require('snekfetch');
 const BotHelper = require('./botHelper.js');
 const moment = require('moment');
+const Collections = require('./collections.js');
 
 const dispatcher = Dispatcher.getInstance();
 const queue = Queue.getInstance();
@@ -32,7 +33,7 @@ module.exports.play = async (args, message) => {
     } else if (args.length > 0) {
       playSong(args[0], openConnection);
     } else if (!queueIsEmpty) {
-      playSong(queue.getNextTitle(), openConnection);
+      playSong(queue.getNextTitle().id, openConnection);
     } else {
       console.log('queue is empty and no arguments given');
     }
@@ -41,14 +42,15 @@ module.exports.play = async (args, message) => {
   }
 };
 
-module.exports.add = async (args, message) => {
+module.exports.add = (args, message) => {
   try {
     args.forEach((argument, index) => {
       const id = getId(argument);
       if (id) {
-        const info = getInfo(id, message);
-        // TODO add info to queue
-        queue.addToQueue(id);
+        getInfo(id, message)
+        .then((obj) => {
+          queue.addToQueue(obj);
+        });
       } else {
         const post = (index === 0) ? 'st' : 'ed';
         message.channel.send('for the ' + (index + 1) + post + ' argument no source could be found');
@@ -61,8 +63,21 @@ module.exports.add = async (args, message) => {
 
 module.exports.queue = async (args, message) => {
   try {
-    let response = queue.getQueue();
-    if (args[0]) response.length = args[0];
+    const queueArr = queue.getQueue();
+    if (args[0]) queueArr.length = args[0];
+    console.warn('queue:', queueArr);
+    let playTime = 0;
+    let response = '';
+    queueArr.forEach((song) => {
+      response += '`' + song.title.substring(0, 40) + '...\t' +
+      song.duration + '`\n';
+      playTime += moment.duration(song.isoTime).as('milliseconds');
+    });
+    if (response.length > 1) {
+      response = moment.duration(playTime).humanize() + '\n' + response;
+    } else {
+      response = 'it seems to be empty..';
+    }
     message.channel.send(response);
   } catch (e) {
     console.log('ERROR - catch', e);
@@ -115,6 +130,22 @@ module.exports.resume = async (args, message) => {
   }
 };
 
+module.exports.clear = async (args, message) => {
+  try {
+    queue.clear();
+  } catch (e) {
+    console.log('ERROR - catch', e);
+  }
+};
+
+module.exports.list = async (args, message) => {
+  try {
+    message.channel.send(Collections.commands);
+  } catch (e) {
+    console.log('ERROR - catch', e);
+  }
+};
+
 module.exports.debug = async (args, message) => {
   try {
     dispatcher.setDispatcher();
@@ -141,7 +172,7 @@ playSong = (song, connection) => {
   }
   dispatcher.on('end', end => {
     if (!queue.isEmpty()) {
-      playSong(queue.getNextTitle(), connection);
+      playSong(queue.getNextTitle().id, connection);
     } else {
       connection.channel.leave();
     }
@@ -154,19 +185,27 @@ getInfo = async (data, message) => {
     let url;
     url = 'https://www.googleapis.com/youtube/v3/videos?id=' + data + '&part=contentDetails&key=' + config.Api_Key;
     const timeResponse = await request.get(url);
-    let duration = convertTime(timeResponse.body.items[0].contentDetails.duration);
-    const dataResponse = BotHelper.search([data]);
-    let title = dataResponse.title;
+    const isoTime = timeResponse.body.items[0].contentDetails.duration;
+    let duration = convertTime(isoTime);
+    url = 'https://www.googleapis.com/youtube/v3/videos?id=' + data + '&key=' + config.Api_Key + '&part=snippet';
+    const dataResponse = await request.get(url);
+    let title = dataResponse.body.items[0].snippet.title;
     let requester = message.member.user.username;
-    let info = {
-      title,
-      duration,
-      requester
-    };
-    return info;
+
+    return createQueueObject(title, duration, requester, data, isoTime);
   } catch (e) {
     console.log('ERROR - catch', e);
   }
+};
+
+createQueueObject = (title, duration, requester, id, isoTime) => {
+  return {
+    title,
+    duration,
+    requester,
+    id,
+    isoTime
+  };
 };
 
 getId = (url) => {
@@ -191,5 +230,5 @@ getId = (url) => {
 
 convertTime = (isoTime) => {
   const duration = moment.duration(isoTime);
-  return moment.utc(duration.as('milliseconds')).format('hh:mm:ss');
+  return moment.utc(duration.as('milliseconds')).format('HH:mm:ss');
 };

@@ -16,9 +16,7 @@ module.exports = (function () {
 
   Singleton.prototype.addToQueue = (value) => {
     try {
-      console.warn('before', this.queue);
       this.queue.push(value);
-      console.warn('after', this.queue);
       return true;
     } catch (e) {
       console.log('ERROR - addToQueue', e);
