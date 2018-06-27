@@ -32,31 +32,42 @@ module.exports.isYoutubeLink = function isYoutubeLink (url) {
   }
 };
 
-module.exports.search = function search (args) {
-  console.log('search started');
-  const proccesedResponse = [];
-  const url = 'https://www.googleapis.com/youtube/v3/search?key=' +
-  config.Api_Key +
-  '&maxResults=5' +
-  '&part=snippet' +
-  '&type=video' +
-  '&q=' + args.join(' ');
-  console.log('URL - ', url);
-  return request.get(url)
-  .then((response) => {
-    console.log('response', response.body.items[0].snippet);
-    response.body.items.forEach((item, index) => { proccesedResponse.push({id: item.id.videoId, index, title: item.snippet.title}); });
+module.exports.search = async function search (args) {
+  try {
+    console.log('search started');
+    const proccesedResponse = [];
+    const url = 'https://www.googleapis.com/youtube/v3/search?key=' +
+      config.Api_Key +
+      '&maxResults=5' +
+      '&part=snippet' +
+      '&type=video' +
+      '&q=' + args.join(' ');
+    console.log('URL - ', url);
+    let response = await request.get(url);
+    console.log('response', response.body.items);
+    response.body.items.forEach((item, index) => {
+      console.warn('iteration');
+      proccesedResponse.push(
+        {
+          id: item.id.videoId,
+          index,
+          title: item.snippet.title
+        });
+    });
     output = [];
     proccesedResponse.forEach((item, index) => {
+      console.warn('iteration 02');
       output.push(
         (item.index + 1) + '  -  ' + item.title + '\n'
       );
     });
-
-    ResponseObject = {
+    const ResponseObject = {
       output: output,
       cache: proccesedResponse
     };
+    console.warn('after ite', ResponseObject);
     return ResponseObject;
-  }).catch((err) => { throw err; });
+  } catch (e) {
+    console.warn(e);
+  }
 };

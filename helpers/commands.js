@@ -146,6 +146,17 @@ module.exports.list = async (args, message) => {
   }
 };
 
+module.exports.search = async (args, message) => {
+  try {
+    const searchResult = await BotHelper.search(args);
+    console.warn('now print');
+    cache.setCache(searchResult.cache);
+    message.channel.send(searchResult.output);
+  } catch (e) {
+    console.log('ERROR - catch', e);
+  }
+};
+
 module.exports.debug = async (args, message) => {
   try {
     dispatcher.setDispatcher();

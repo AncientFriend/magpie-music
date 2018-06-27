@@ -156,6 +156,18 @@ client.on('message', async message => {
         }
         isRdy = true;
         break;
+      case 'find':
+      case 'search':
+      /* NOTE search
+       * searches youtube for parameters and returns top 5
+       */
+        if (isRdy) {
+          idRdy = false;
+          Commands.search(args, message);
+          console.log('done');
+        }
+        isRdy = true;
+        break;
       default:
         console.log('LOG - default');
         break;
