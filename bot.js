@@ -56,7 +56,7 @@ client.on('message', async message => {
        * adds the given songs to the queue
        */
         if (isRdy) {
-          idRdy = false;
+          isRdy = false;
           Commands.add(args, message);
           console.log('done');
         }
@@ -68,7 +68,7 @@ client.on('message', async message => {
        * if argument given displays x titles of the q
        */
         if (isRdy) {
-          idRdy = false;
+          isRdy = false;
           Commands.queue(args, message);
           console.log('done');
         }
@@ -79,7 +79,7 @@ client.on('message', async message => {
        * tries to leave the callers voiceChannel
        */
         if (isRdy) {
-          idRdy = false;
+          isRdy = false;
           Commands.leave(args, message);
           console.log('done');
         }
@@ -90,7 +90,7 @@ client.on('message', async message => {
        * tries to join the callers voiceChannel
        */
         if (isRdy) {
-          idRdy = false;
+          isRdy = false;
           Commands.join(args, message);
           console.log('done');
         }
@@ -101,7 +101,7 @@ client.on('message', async message => {
        * pauses song thats playing atm
        */
         if (isRdy) {
-          idRdy = false;
+          isRdy = false;
           Commands.pause(args, message);
           console.log('done');
         }
@@ -113,7 +113,7 @@ client.on('message', async message => {
        * resumes song thats paused atm
        */
         if (isRdy) {
-          idRdy = false;
+          isRdy = false;
           Commands.resume(args, message);
           console.log('done');
         }
@@ -137,7 +137,7 @@ client.on('message', async message => {
        * clears queue
        */
         if (isRdy) {
-          idRdy = false;
+          isRdy = false;
           Commands.clear(args, message);
           console.log('done');
         }
@@ -150,7 +150,7 @@ client.on('message', async message => {
        * lists all documented commands // TODO and their functionallity
        */
         if (isRdy) {
-          idRdy = false;
+          isRdy = false;
           Commands.list(args, message);
           console.log('done');
         }
