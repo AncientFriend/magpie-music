@@ -2,7 +2,6 @@ const Discord = require('discord.js');
 const Ytdl = require('ytdl-core');
 const Youtube = require('youtube-api');
 const config = require('./config.json');
-const env = require('./\.env');
 const request = require('snekfetch');
 
 const BotHelper = require('./helpers/botHelper.js');
@@ -205,4 +204,4 @@ client.on('message', async message => {
   }
 });
 
-client.login(env.token);
+client.login(process.env.TOKEN);

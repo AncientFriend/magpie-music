@@ -3,7 +3,6 @@ const Ytdl = require('ytdl-core');
 const Youtube = require('youtube-api');
 const config = require('./config.json');
 const request = require('snekfetch');
-const env = require('./\.env')
 
 const BotHelper = require('./helpers/botHelper.js');
 const Collections = require('./helpers/collections.js');
@@ -166,4 +165,4 @@ client.on('message', async message => {
   }
 });
 
-client.login(env.TOKEN);
+client.login(process.env.TOKEN);

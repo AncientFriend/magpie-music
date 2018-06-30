@@ -1,7 +1,6 @@
 const fs = require('fs');
 const config = require('../config.json');
 const request = require('snekfetch');
-const env = require('./\.env')
 
 module.exports.getFileEnding = function getFileEnding (filename) {
   const help = filename.split('.');
@@ -37,7 +36,7 @@ module.exports.search = function search (args) {
   console.log('search started');
   const proccesedResponse = [];
   const url = 'https://www.googleapis.com/youtube/v3/search?key=' +
-  env.Api_Key +
+  process.env.Api_Key +
   '&maxResults=5' +
   '&part=snippet' +
   '&type=video' +
