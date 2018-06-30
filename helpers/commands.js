@@ -8,7 +8,7 @@ const request = require('snekfetch');
 const BotHelper = require('./botHelper.js');
 const moment = require('moment');
 const Collections = require('./collections.js');
-const env = require('./env')
+const env = require('./\.env')
 
 const dispatcher = Dispatcher.getInstance();
 const queue = Queue.getInstance();

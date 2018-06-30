@@ -1,7 +1,7 @@
 const fs = require('fs');
 const config = require('../config.json');
 const request = require('snekfetch');
-const env = require('./env')
+const env = require('./\.env')
 
 module.exports.getFileEnding = function getFileEnding (filename) {
   const help = filename.split('.');
