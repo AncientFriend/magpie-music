@@ -32,7 +32,7 @@ module.exports.play = async (args, message) => {
       dispatcher.resume();
     } else if (args.length > 0) {
       playSong(args[0], openConnection);
-    } else if (!queueIsEmpty) {
+    } else if (!queue.IsEmpty()) {
       playSong(queue.getNextTitle().id, openConnection);
     } else {
       console.log('queue is empty and no arguments given');
