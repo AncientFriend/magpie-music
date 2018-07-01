@@ -42,7 +42,6 @@ client.on('message', async message => {
        * if no argument given plays first out of queue or resumes paused song
        * TODO if multiple arguments are given plays first and adds the rest to queue
        */
-        console.warn(isRdy);
         if (isRdy) {
           isRdy = false;
           Commands.play(args, message);
@@ -155,6 +154,10 @@ client.on('message', async message => {
           console.log('done');
         }
         isRdy = true;
+        break;
+      case 'ping':
+        const m = await message.channel.send('Ping?');
+        m.edit(`Pong! Latency is ${m.createdTimestamp - message.createdTimestamp}ms. API Latency is ${Math.round(client.ping)}ms`);
         break;
       default:
         console.log('LOG - default');
