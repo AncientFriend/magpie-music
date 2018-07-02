@@ -32,7 +32,7 @@ module.exports.play = async (args, message) => {
       dispatcher.resume();
     } else if (args.length > 0) {
       playSong(args[0], openConnection);
-    } else if (!queueIsEmpty) {
+    } else if (!queue.isEmpty()) {
       playSong(queue.getNextTitle().id, openConnection);
     } else {
       console.log('queue is empty and no arguments given');
@@ -194,11 +194,11 @@ getInfo = async (data, message) => {
   // TODO
   try {
     let url;
-    url = 'https://www.googleapis.com/youtube/v3/videos?id=' + data + '&part=contentDetails&key=' + config.Api_Key;
+    url = 'https://www.googleapis.com/youtube/v3/videos?id=' + data + '&part=contentDetails&key=' + process.env.Api_Key;
     const timeResponse = await request.get(url);
     const isoTime = timeResponse.body.items[0].contentDetails.duration;
     let duration = convertTime(isoTime);
-    url = 'https://www.googleapis.com/youtube/v3/videos?id=' + data + '&key=' + config.Api_Key + '&part=snippet';
+    url = 'https://www.googleapis.com/youtube/v3/videos?id=' + data + '&key=' + process.env.Api_Key + '&part=snippet';
     const dataResponse = await request.get(url);
     let title = dataResponse.body.items[0].snippet.title;
     let requester = message.member.user.username;
