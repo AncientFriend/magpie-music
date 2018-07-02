@@ -150,7 +150,7 @@ module.exports.search = async (args, message) => {
   try {
     const searchResult = await BotHelper.search(args);
     console.warn('now print');
-    cache.setCache(searchResult.cache);
+    cache.setCache(searchResult.body.cache);
     message.channel.send(searchResult.output);
   } catch (e) {
     console.log('ERROR - catch', e);
