@@ -37,7 +37,7 @@ module.exports.search = async function search (args) {
     console.log('search started');
     const proccesedResponse = [];
     const url = 'https://www.googleapis.com/youtube/v3/search?key=' +
-      process.env.Api_Key +
+      process.env.API_KEY +
       '&maxResults=5' +
       '&part=snippet' +
       '&type=video' +
