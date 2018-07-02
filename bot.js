@@ -195,9 +195,9 @@ client.on('message', async message => {
         }
         isRdy = true;
         break;
-      case 'debug':
+      case 'test':
       // TODO delete after debugging
-        console.warn(process.env);
+        console.warn('env:', process.env);
         break;
       default:
         console.log('LOG - default');
