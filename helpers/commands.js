@@ -15,9 +15,9 @@ const cache = Cache.getInstance();
 
 module.exports.play = async (args, message) => {
   console.warn('Play');
-  let openConnection;
-  let conn;
   try {
+    let openConnection;
+    let conn;
     let voiceChannel = message.member.voiceChannel;
     if (!voiceChannel) {
       message.channel.send(strings.cmds.play.errorNotFound);

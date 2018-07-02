@@ -21,6 +21,9 @@ const cache = Cache.getInstance();
 
 let isRdy = true;
 
+let cmd;
+let args;
+
 client.on('ready', () => {
   console.log(`Bot has started, with ${client.users.size} users, in ${client.channels.size} channels of ${client.guilds.size} guilds.`);
   client.user.setActivity(`Serving ${client.guilds.size} servers`);
@@ -28,10 +31,16 @@ client.on('ready', () => {
 
 client.on('message', async message => {
   if (message.author.bot) return;
-  if (message.content.indexOf(config.prefix) !== 0) return;
-
-  let args = message.content.slice(config.prefix.length).trim().split(/ +/g);
-  let cmd = args.shift().toLowerCase();
+  if (message.content.indexOf(config.prefix) !== 0 && ['1', '2', '3', '4', '5'].indexOf(message.content) === -1) {
+    console.warn(['1', '2', '3', '4', '5'].indexOf(message.content) !== -1);
+    return;
+  }
+  if (message.content.indexOf(config.prefix) !== 0) {
+    cmd = message.content;
+  } else {
+    args = message.content.slice(config.prefix.length).trim().split(/ +/g);
+    cmd = args.shift().toLowerCase();
+  }
 
   try {
     switch (cmd) {
@@ -170,6 +179,21 @@ client.on('message', async message => {
       case 'ping':
         const m = await message.channel.send('Ping?');
         m.edit(`Pong! Latency is ${m.createdTimestamp - message.createdTimestamp}ms. API Latency is ${Math.round(client.ping)}ms`);
+        break;
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      /* NOTE 1/2/3/4/5
+       * TODO checks if cache for given number has title and puts them into queue
+       */
+        if (isRdy) {
+          idRdy = false;
+          Commands.search(args, message);
+          console.log('done');
+        }
+        isRdy = true;
         break;
       default:
         console.log('LOG - default');
