@@ -158,7 +158,7 @@ module.exports.search = async (args, message) => {
 
 module.exports.addCached = async (args, message) => {
   try {
-    const cachedValues = cache.getCache;
+    const cachedValues = await cache.getCache;
     const normalizedCache = await getInfo(cachedValues.id);
     queue.addToQueue(normalizedCache);
   } catch (e) {
