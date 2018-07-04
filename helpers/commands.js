@@ -159,7 +159,7 @@ module.exports.search = async (args, message) => {
 module.exports.addCached = async (args, message) => {
   try {
     const cachedValues = cache.getCache;
-    const normalizedCache = getInfo(cachedValues.id);
+    const normalizedCache = await getInfo(cachedValues.id);
     queue.addToQueue(normalizedCache);
   } catch (e) {
     console.log('ERROR - catch', e);
