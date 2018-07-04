@@ -149,9 +149,18 @@ module.exports.list = async (args, message) => {
 module.exports.search = async (args, message) => {
   try {
     const searchResult = await BotHelper.search(args);
-    console.warn('now print');
     cache.setCache(searchResult.cache);
     message.channel.send(searchResult.output);
+  } catch (e) {
+    console.log('ERROR - catch', e);
+  }
+};
+
+module.exports.addCached = async (args, message) => {
+  try {
+    const cachedValues = cache.getCache;
+    const normalizedCache = getInfo(cachedValues.id);
+    queue.addToQueue(normalizedCache);
   } catch (e) {
     console.log('ERROR - catch', e);
   }
