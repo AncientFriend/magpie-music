@@ -159,7 +159,7 @@ module.exports.search = async (args, message) => {
 module.exports.addCached = async (args, message) => {
   try {
     const cachedValues = await cache.getCache();
-    const normalizedCache = await getInfo(cachedValues.id);
+    const normalizedCache = await getInfo(cachedValues.id, message);
     queue.addToQueue(normalizedCache);
   } catch (e) {
     console.log('ERROR - catch', e);
@@ -205,7 +205,7 @@ getInfo = async (data, message) => {
     let url;
     url = 'https://www.googleapis.com/youtube/v3/videos?id=' + data + '&part=contentDetails&key=' + process.env.API_KEY;
     const timeResponse = await request.get(url);
-    console.warn('TIMERESPONSE', timeResponse);
+    console.warn('TIMERESPONSE', timeResponse.body);
     const isoTime = timeResponse.body.items[0].contentDetails.duration;
     let duration = convertTime(isoTime);
     url = 'https://www.googleapis.com/youtube/v3/videos?id=' + data + '&key=' + process.env.API_KEY + '&part=snippet';
