@@ -160,7 +160,9 @@ module.exports.addCached = async (args, message) => {
   try {
     const cachedValues = cache.getCache();
     let normalizedCache = [];
+    console.warn('LOG - 1', cachedValues);
     cachedValues.forEach((item) => normalizedCache.push(getInfo(item.id)) )
+    console.warn('LOG - 2', normalizedCache);
     message.channel.send('cachedValuesNormaized', normalizedCache)
   } catch (e) {
     console.log('ERROR - catch', e);
