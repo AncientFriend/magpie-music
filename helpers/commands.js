@@ -206,6 +206,7 @@ getInfo = async (data, message) => {
     let url;
     url = 'https://www.googleapis.com/youtube/v3/videos?id=' + data + '&part=contentDetails&key=' + process.env.API_KEY;
     const timeResponse = await request.get(url);
+    console.warn('TIMERESPONSE', timeResponse.body);
     const isoTime = timeResponse.body.items[0].contentDetails.duration;
     let duration = convertTime(isoTime);
     url = 'https://www.googleapis.com/youtube/v3/videos?id=' + data + '&key=' + process.env.API_KEY + '&part=snippet';
