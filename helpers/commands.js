@@ -159,7 +159,7 @@ module.exports.search = async (args, message) => {
 module.exports.addCached = async (args, message) => {
   try {
     const cachedValues = cache.getCache();
-    const normalizedCache;
+    let normalizedCache = [];
     cachedValues.forEach((item) => normalizedCache.push(getInfo(item.id)) )
     message.channel.send('cachedValuesNormaized', normalizedCache)
   } catch (e) {
