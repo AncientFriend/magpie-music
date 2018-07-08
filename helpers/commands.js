@@ -168,7 +168,7 @@ module.exports.addCached = async (args, message) => {
 
       })
     })
-    queue.add(normalizedCache[args+1])
+    queue.addToQueue(normalizedCache[args+1])
     console.warn('LOG - 2', normalizedCache);
     message.channel.send('cachedValuesNormaized', normalizedCache)
   } catch (e) {
