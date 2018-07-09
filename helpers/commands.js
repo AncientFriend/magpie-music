@@ -167,9 +167,7 @@ module.exports.addCached = async (args, message) => {
         queue.addToQueue(normalizedCache[args+1])
       })
     })
-    .then(() => {
-      message.channel.send('cachedValuesNormaized', normalizedCache)
-    })
+    message.channel.send('cachedValuesNormaized', normalizedCache)
   } catch (e) {
     console.log('ERROR - catch', e);
   }
