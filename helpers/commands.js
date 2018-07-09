@@ -164,7 +164,7 @@ module.exports.addCached = async (args, message) => {
     cachedValues.forEach((item) => {
       const info = getInfo(item.id, message)
       console.warn('INFO :', info);
-      normalizedCache.push(info)
+      normalizedCache.push(Promise.resolve(info))
     })
     console.warn('LOG - 1.5', args);
     queue.addToQueue(normalizedCache[args+1])
