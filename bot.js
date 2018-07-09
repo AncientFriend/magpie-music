@@ -190,7 +190,7 @@ client.on('message', async message => {
        */
         if (isRdy) {
           idRdy = false;
-          Commands.addCached(args, message);
+          Commands.addCached(message);
           console.log('done');
         }
         isRdy = true;
