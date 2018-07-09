@@ -161,7 +161,7 @@ module.exports.addCached = async (args, message) => {
     const cachedValues = cache.getCache();
     let normalizedCache = [];
     console.warn('LOG - 1', cachedValues);
-    return cachedValues.forEach((item) => {
+    cachedValues.forEach((item) => {
       return getInfo(item.id, message)
       .then((info) => {
         queue.addToQueue(normalizedCache[args+1])
