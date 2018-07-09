@@ -162,7 +162,7 @@ module.exports.addCached = async (args, message) => {
     let normalizedCache = [];
     console.warn('LOG - 1', cachedValues);
     cachedValues.forEach((item) => {
-      const info = await getInfo(item.id, message)
+      const info = getInfo(item.id, message)
       console.warn('INFO :', info);
       normalizedCache.push(info)
     })
