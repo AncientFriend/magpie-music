@@ -161,11 +161,14 @@ module.exports.addCached = async (args, message) => {
     const cachedValues = cache.getCache();
     let normalizedCache = [];
     console.warn('LOG - 1', cachedValues);
-    cachedValues.forEach((item) => {
+    cachedValues.forEach((item, index) => {
+      console.warn('LOG - 20', args);
+      if(args+1 === item) {
       return getInfo(item.id, message)
       .then((info) => {
         queue.addToQueue(normalizedCache[args+1])
       })
+    }
     })
     message.channel.send('cachedValuesNormaized', normalizedCache)
   } catch (e) {
