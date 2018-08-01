@@ -65,7 +65,6 @@ module.exports.queue = async (args, message) => {
   try {
     const queueArr = queue.getQueue();
     if (args[0]) queueArr.length = args[0];
-    console.warn('queue:', queueArr);
     let playTime = 0;
     let response = '';
     queueArr.forEach((song) => {
@@ -156,21 +155,19 @@ module.exports.search = async (args, message) => {
   }
 };
 
-module.exports.addCached = async (args, message) => {
+module.exports.addCached = async (message) => {
   try {
     const cachedValues = cache.getCache();
-    let normalizedCache = [];
-    console.warn('LOG - 1', cachedValues);
     cachedValues.forEach((item, index) => {
-      console.warn('LOG - 20', args);
-      if(args+1 === item) {
-      return getInfo(item.id, message)
-      .then((info) => {
-        queue.addToQueue(normalizedCache[args+1])
-      })
-    }
-    })
-    message.channel.send('cachedValuesNormaized', normalizedCache)
+      if (message.content == item.index + 1) {
+        return getInfo(item.id, message)
+        .then((info) => {
+          queue.addToQueue(info);
+          message.channel.send('added \'' + info.title + '\' to the playlist');
+          cache.clearCache();
+        });
+      }
+    });
   } catch (e) {
     console.log('ERROR - catch', e);
   }
@@ -215,7 +212,6 @@ getInfo = async (data, message) => {
     let url;
     url = 'https://www.googleapis.com/youtube/v3/videos?id=' + data + '&part=contentDetails&key=' + process.env.API_KEY;
     const timeResponse = await request.get(url);
-    console.warn('TIMERESPONSE', timeResponse.body);
     const isoTime = timeResponse.body.items[0].contentDetails.duration;
     let duration = convertTime(isoTime);
     url = 'https://www.googleapis.com/youtube/v3/videos?id=' + data + '&key=' + process.env.API_KEY + '&part=snippet';

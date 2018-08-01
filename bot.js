@@ -20,6 +20,7 @@ const queue = Queue.getInstance();
 const cache = Cache.getInstance();
 
 let isRdy = true;
+let hasCached = false;
 
 let cmd;
 let args;
@@ -31,7 +32,7 @@ client.on('ready', () => {
 
 client.on('message', async message => {
   if (message.author.bot) return;
-  if (message.content.indexOf(config.prefix) !== 0 && ['1', '2', '3', '4', '5'].indexOf(message.content) === -1) {
+  if (message.content.indexOf(config.prefix) !== 0 && (['1', '2', '3', '4', '5'].indexOf(message.content) === -1 || !hasCached)) {
     console.warn(['1', '2', '3', '4', '5'].indexOf(message.content) !== -1);
     return;
   }
@@ -172,6 +173,7 @@ client.on('message', async message => {
         if (isRdy) {
           idRdy = false;
           Commands.search(args, message);
+          hasCached = true;
           console.log('done');
         }
         isRdy = true;
@@ -188,9 +190,10 @@ client.on('message', async message => {
       /* NOTE 1/2/3/4/5
        * TODO checks if cache for given number has title and puts them into queue
        */
-        if (isRdy) {
+        if (isRdy && hasCached) {
           idRdy = false;
           Commands.addCached(message);
+          hasCached = false;
           console.log('done');
         }
         isRdy = true;

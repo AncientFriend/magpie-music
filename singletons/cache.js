@@ -25,7 +25,6 @@ module.exports = (function () {
   };
 
   Singleton.prototype.getCache = () => {
-    console.log('LOL');
     try {
       return this.cache;
     } catch (e) {
@@ -34,12 +33,20 @@ module.exports = (function () {
     }
   };
 
-  Singleton.prototype.deleteCache = () => {
+  Singleton.prototype.isEmpty = () => {
+    try {
+      return this.cache.length > 0;
+    } catch (e) {
+      console.log('ERROR - isEmpty', e);
+    }
+  };
+
+  Singleton.prototype.clearCache = () => {
     try {
       this.cache.length = 0;
       return true;
     } catch (e) {
-      console.log('ERROR - deleteCache', e);
+      console.log('ERROR - clearCache', e);
       return false;
     }
   };

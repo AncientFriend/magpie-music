@@ -42,11 +42,8 @@ module.exports.search = async function search (args) {
       '&part=snippet' +
       '&type=video' +
       '&q=' + args.join(' ');
-    console.log('URL - ', url);
     let response = await request.get(url);
-    console.log('response', response.body.items);
     response.body.items.forEach((item, index) => {
-      console.warn('iteration');
       proccesedResponse.push(
         {
           id: item.id.videoId,
@@ -56,7 +53,6 @@ module.exports.search = async function search (args) {
     });
     output = [];
     proccesedResponse.forEach((item, index) => {
-      console.warn('iteration 02');
       output.push(
         (item.index + 1) + '  -  ' + item.title + '\n'
       );
@@ -65,7 +61,6 @@ module.exports.search = async function search (args) {
       output: output,
       cache: proccesedResponse
     };
-    console.warn('after ite', ResponseObject);
     return ResponseObject;
   } catch (e) {
     console.warn(e);

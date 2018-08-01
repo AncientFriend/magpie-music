@@ -64,7 +64,6 @@ module.exports = (function () {
 
   Singleton.prototype.isEmpty = () => {
     try {
-      console.warn('returning:', this.queue.length < 1, this.queue.length);
       return this.queue.length < 1;
     } catch (e) {
       console.log('ERROR - isEmpty', e);
