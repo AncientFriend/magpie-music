@@ -56,8 +56,8 @@ client.on('message', async message => {
           isRdy = false;
           Commands.play(args, message);
           console.log('done');
+          isRdy = true;
         }
-        isRdy = true;
         break;
       case 'add':
       /* NOTE add
@@ -68,9 +68,10 @@ client.on('message', async message => {
           isRdy = false;
           Commands.add(args, message);
           console.log('done');
+          isRdy = true;
         }
-        isRdy = true;
         break;
+      case 'q':
       case 'queue':
       /* NOTE queue
        * displays the queue
@@ -80,8 +81,8 @@ client.on('message', async message => {
           isRdy = false;
           Commands.queue(args, message);
           console.log('done');
+          isRdy = true;
         }
-        isRdy = true;
         break;
       case 'leave':
       /* NOTE leave
@@ -91,8 +92,8 @@ client.on('message', async message => {
           isRdy = false;
           Commands.leave(args, message);
           console.log('done');
+          isRdy = true;
         }
-        isRdy = true;
         break;
       case 'join':
       /* NOTE join
@@ -102,8 +103,8 @@ client.on('message', async message => {
           isRdy = false;
           Commands.join(args, message);
           console.log('done');
+          isRdy = true;
         }
-        isRdy = true;
         break;
       case 'pause':
       /* NOTE pause
@@ -113,8 +114,8 @@ client.on('message', async message => {
           isRdy = false;
           Commands.pause(args, message);
           console.log('done');
+          isRdy = true;
         }
-        isRdy = true;
         break;
       case 'continue':
       case 'resume':
@@ -125,8 +126,8 @@ client.on('message', async message => {
           isRdy = false;
           Commands.resume(args, message);
           console.log('done');
+          isRdy = true;
         }
-        isRdy = true;
         break;
       case 'debug':
       /* NOTE debug
@@ -149,8 +150,8 @@ client.on('message', async message => {
           isRdy = false;
           Commands.clear(args, message);
           console.log('done');
+          isRdy = true;
         }
-        isRdy = true;
         break;
       case 'listcommands':
       case 'commands':
@@ -162,8 +163,8 @@ client.on('message', async message => {
           isRdy = false;
           Commands.list(args, message);
           console.log('done');
+          isRdy = true;
         }
-        isRdy = true;
         break;
       case 'find':
       case 'search':
@@ -175,8 +176,8 @@ client.on('message', async message => {
           Commands.search(args, message);
           hasCached = true;
           console.log('done');
+          isRdy = true;
         }
-        isRdy = true;
         break;
       case 'ping':
         const m = await message.channel.send('Ping?');
@@ -188,15 +189,35 @@ client.on('message', async message => {
       case '4':
       case '5':
       /* NOTE 1/2/3/4/5
-       * TODO checks if cache for given number has title and puts them into queue
+       * checks if cache for given number has title and puts them into queue
        */
         if (isRdy && hasCached) {
           idRdy = false;
           Commands.addCached(message);
           hasCached = false;
           console.log('done');
+          isRdy = true;
         }
-        isRdy = true;
+        break;
+      case 'export':
+        /* NOTE export
+         * TODO exports queue as id list to be imported at a later date
+         */
+        if (isRdy) {
+          isRdy = false;
+          Commands.export(message);
+          isRdy = true;
+        }
+        break;
+      case 'import':
+       /* NOTE import
+        * TODO imports list of youtube video ids and puts them into queue
+        */
+        if (isRdy) {
+          isRdy = false;
+          Commands.import(message, args);
+          isRdy = true;
+        }
         break;
       default:
         console.log('LOG - default');

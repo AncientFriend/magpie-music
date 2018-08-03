@@ -8,6 +8,7 @@ const request = require('snekfetch');
 const BotHelper = require('./botHelper.js');
 const moment = require('moment');
 const Collections = require('./collections.js');
+const base64 = require('base-64');
 
 const dispatcher = Dispatcher.getInstance();
 const queue = Queue.getInstance();
@@ -38,18 +39,21 @@ module.exports.play = async (args, message) => {
       console.log('queue is empty and no arguments given');
     }
   } catch (e) {
-    console.log('ERROR - catch', e);
+    console.log('ERROR - catch', arguments.callee.name, e);
   }
 };
 
 module.exports.add = (args, message) => {
   try {
     args.forEach((argument, index) => {
-      const id = getId(argument);
+      const id = argument.includes('you') ? getId(argument) : argument;
       if (id) {
         getInfo(id, message)
         .then((obj) => {
-          queue.addToQueue(obj);
+          if (!queue.addToQueue(obj)) {
+            message.channel.send('max length');
+            throw new Error();
+          }
         });
       } else {
         const post = (index === 0) ? 'st' : 'ed';
@@ -57,7 +61,7 @@ module.exports.add = (args, message) => {
       }
     });
   } catch (e) {
-    console.log('ERROR - catch', e);
+    console.log('ERROR - catch', arguments.callee.name, e);
   }
 };
 
@@ -67,19 +71,21 @@ module.exports.queue = async (args, message) => {
     if (args[0]) queueArr.length = args[0];
     let playTime = 0;
     let response = '';
-    queueArr.forEach((song) => {
-      response += '`' + song.title.substring(0, 40) + '...\t' +
-      song.duration + '`\n';
+    queueArr.forEach((song, index) => {
       playTime += moment.duration(song.isoTime).as('milliseconds');
+      if (index >= 10) return;
+      const title = song.title.substring(0, 40);
+      response += '`' + (title.length < 40 ? title + ' '.repeat(43 - title.length) : title + '...') + '\t' +
+      song.duration + '`\n';
     });
     if (response.length > 1) {
-      response = moment.duration(playTime).humanize() + '\n' + response;
+      response = moment.duration(playTime).humanize() + '\n' + response + '\nand ' + (queueArr.length - 10) + ' more';
     } else {
       response = 'it seems to be empty..';
     }
     message.channel.send(response);
   } catch (e) {
-    console.log('ERROR - catch', e);
+    console.log('ERROR - catch', arguments.callee.name, e);
   }
 };
 
@@ -94,7 +100,7 @@ module.exports.leave = async (args, message) => {
       }
     }
   } catch (e) {
-    console.log('ERROR - catch', e);
+    console.log('ERROR - catch', arguments.callee.name, e);
   }
 };
 
@@ -109,7 +115,7 @@ module.exports.join = async (args, message) => {
       }
     }
   } catch (e) {
-    console.log('ERROR - catch', e);
+    console.log('ERROR - catch', arguments.callee.name, e);
   }
 };
 
@@ -117,7 +123,7 @@ module.exports.pause = async (args, message) => {
   try {
     dispatcher.pause();
   } catch (e) {
-    console.log('ERROR - catch', e);
+    console.log('ERROR - catch', arguments.callee.name, e);
   }
 };
 
@@ -125,7 +131,7 @@ module.exports.resume = async (args, message) => {
   try {
     dispatcher.resume();
   } catch (e) {
-    console.log('ERROR - catch', e);
+    console.log('ERROR - catch', arguments.callee.name, e);
   }
 };
 
@@ -133,7 +139,7 @@ module.exports.clear = async (args, message) => {
   try {
     queue.clear();
   } catch (e) {
-    console.log('ERROR - catch', e);
+    console.log('ERROR - catch', arguments.callee.name, e);
   }
 };
 
@@ -141,7 +147,7 @@ module.exports.list = async (args, message) => {
   try {
     message.channel.send(Collections.commands);
   } catch (e) {
-    console.log('ERROR - catch', e);
+    console.log('ERROR - catch', arguments.callee.name, e);
   }
 };
 
@@ -151,7 +157,7 @@ module.exports.search = async (args, message) => {
     cache.setCache(searchResult.cache);
     message.channel.send(searchResult.output);
   } catch (e) {
-    console.log('ERROR - catch', e);
+    console.log('ERROR - catch', arguments.callee.name, e);
   }
 };
 
@@ -169,7 +175,7 @@ module.exports.addCached = async (message) => {
       }
     });
   } catch (e) {
-    console.log('ERROR - catch', e);
+    console.log('ERROR - catch', arguments.callee.name, e);
   }
 };
 
@@ -181,7 +187,33 @@ module.exports.debug = async (args, message) => {
     message.member.voiceChannel.leave();
     if (args[0] === 'rejoin' || args[0] === '-r') message.member.voiceChannel.join();
   } catch (e) {
-    console.log('ERROR - catch', e);
+    console.log('ERROR - catch', arguments.callee.name, e);
+  }
+};
+
+module.exports.export = async (message) => {
+  try {
+    const q = queue.getQueue();
+    let exportList = [];
+    q.forEach((item) => {
+      exportList.push(item.id);
+    });
+    const code = base64.encode(JSON.stringify(exportList));
+    code.match(/.{1,1500}/g).forEach(text => {
+      message.author.send(text);
+    });
+  } catch (e) {
+    console.log('ERROR - catch', arguments.callee.name, e);
+  }
+};
+
+module.exports.import = async (message, args) => {
+  try {
+    const input = args.join(' ');
+    const list = JSON.parse(base64.decode(input));
+    this.add(list, message);
+  } catch (e) {
+    console.log('ERROR - catch', arguments.callee.name, e);
   }
 };
 
@@ -195,7 +227,7 @@ playSong = (song, connection) => {
       console.log('please use youtubelinks or id\'s');
     }
   } catch (e) {
-    console.log('ERROR - catch', e);
+    console.log('ERROR - catch', arguments.callee.name, e);
   }
   dispatcher.on('end', end => {
     if (!queue.isEmpty()) {
@@ -221,7 +253,7 @@ getInfo = async (data, message) => {
 
     return createQueueObject(title, duration, requester, data, isoTime);
   } catch (e) {
-    console.log('ERROR - catch', e);
+    console.log('ERROR - catch', arguments.callee.name, e);
   }
 };
 
