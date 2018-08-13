@@ -10,9 +10,14 @@ const moment = require('moment');
 const Collections = require('./collections.js');
 const base64 = require('base-64');
 
+const { Client } = require('pg');
 const dispatcher = Dispatcher.getInstance();
 const queue = Queue.getInstance();
 const cache = Cache.getInstance();
+const pgClient = new Client({
+  connectionString: process.env.DATABASE_URL,
+  ssl: true
+});
 
 module.exports.play = async (args, message) => {
   console.warn('Play');
@@ -43,16 +48,18 @@ module.exports.play = async (args, message) => {
   }
 };
 
-module.exports.add = (args, message) => {
+module.exports.add = (args, message, delets) => {
   try {
     args.forEach((argument, index) => {
       const id = argument.includes('you') ? getId(argument) : argument;
       if (id) {
         getInfo(id, message)
         .then((obj) => {
-          if (!queue.addToQueue(obj)) {
-            message.channel.send('max length');
-            throw new Error();
+          if (obj) {
+            if (!queue.addToQueue(obj)) {
+              message.channel.send('max length');
+              throw new Error();
+            }
           }
         });
       } else {
@@ -60,6 +67,29 @@ module.exports.add = (args, message) => {
         message.channel.send('for the ' + (index + 1) + post + ' argument no source could be found');
       }
     });
+    console.warn(delets);
+    if (delets > 0) message.channel.send(delets + ' where removed.');
+  } catch (e) {
+    console.log('ERROR - catch', arguments.callee.name, e);
+  }
+};
+
+module.exports.playlist = async (args, message) => {
+  try {
+    const ytUrl = args[0];
+    if (ytUrl.includes('youtube') && ytUrl.includes('playlist')) {
+      const mapping = {'{PLAYLIST_ID}': ytUrl.split('list=')[1].split('&')[0], '{API_KEY}': process.env.API_KEY, '{TOKEN}': ''};
+      const url = 'https://www.googleapis.com/youtube/v3/playlistItems?part=snippet%2CcontentDetails&maxResults=50&playlistId={PLAYLIST_ID}&key={API_KEY}&nextPageToken={TOKEN}';
+      let response = (await request.get(url.replace(new RegExp('{PLAYLIST_ID}|{API_KEY}|{TOKEN}', 'gi'), function (matched) { return mapping[matched]; }))).body;
+      const nextPageToken = response.nextPageToken || false;
+      const ids = [];
+      let delets = 0;
+      response.items.forEach(item => {
+        ids.push(item.snippet.resourceId.videoId);
+        if (item.snippet.title === 'Deleted video') delets++;
+      });
+      this.add(ids, message, delets);
+    }
   } catch (e) {
     console.log('ERROR - catch', arguments.callee.name, e);
   }
@@ -79,7 +109,7 @@ module.exports.queue = async (args, message) => {
       song.duration + '`\n';
     });
     if (response.length > 1) {
-      response = moment.duration(playTime).humanize() + '\n' + response + '\nand ' + (queueArr.length - 10) + ' more';
+      response = moment.duration(playTime).humanize() + '\n' + response + (queueArr.length > 10 ? '\nand ' + (queueArr.length - 10) + ' more' : '');
     } else {
       response = 'it seems to be empty..';
     }
@@ -191,17 +221,39 @@ module.exports.debug = async (args, message) => {
   }
 };
 
-module.exports.export = async (message) => {
+module.exports.export = async (args, message) => {
   try {
-    const q = queue.getQueue();
-    let exportList = [];
-    q.forEach((item) => {
-      exportList.push(item.id);
-    });
-    const code = base64.encode(JSON.stringify(exportList));
-    code.match(/.{1,1500}/g).forEach(text => {
-      message.author.send(text);
-    });
+    message.channel.send('functionallity is beeing worked on right now');
+
+    // console.warn('Arguments: ', args[0], ' - - ', args);
+    // if (!args[0]) {
+    //   message.channel.send('please choose a <name> for the playlist ```!export <name>```');
+    //   return;
+    // }
+    // const q = JSON.stringify(queue.getQueue());
+    // // const name = args[0].replace("'", "''")
+    // console.warn('QUEUE', typeof q);
+    // const query = `INSERT INTO Playlists (name, content) VALUES ('` + 'args[0]' + `', '` + 'justanotherqueue' + `');`;
+    // console.warn('Q:', query);
+    // await pgClient.connect();
+    // const response = await pgClient.query(query);
+    // await pgClient.end();
+
+    // const q = queue.getQueue();
+    // let exportList = [];
+    // q.forEach((item) => {
+    //   exportList.push(item.id);
+    // });
+    // const code = base64.encode(JSON.stringify(exportList));
+    // code.match(/.{1,1500}/g).forEach(text => {
+    //   pgClient.connect().then(res => {
+    //     console.log(res);
+    //     const query = pgClient.query("INSERT INTO playlists (name, content, duration) VALUES ('test', '" + text + "', '5')");
+    //     query.on('end', res => {
+    //       console.log(res);
+    //     });
+    //   });
+    // });
   } catch (e) {
     console.log('ERROR - catch', arguments.callee.name, e);
   }
@@ -242,18 +294,28 @@ getInfo = async (data, message) => {
   // TODO
   try {
     let url;
-    url = 'https://www.googleapis.com/youtube/v3/videos?id=' + data + '&part=contentDetails&key=' + process.env.API_KEY;
-    const timeResponse = await request.get(url);
-    const isoTime = timeResponse.body.items[0].contentDetails.duration;
-    let duration = convertTime(isoTime);
-    url = 'https://www.googleapis.com/youtube/v3/videos?id=' + data + '&key=' + process.env.API_KEY + '&part=snippet';
-    const dataResponse = await request.get(url);
-    let title = dataResponse.body.items[0].snippet.title;
-    let requester = message.member.user.username;
-
-    return createQueueObject(title, duration, requester, data, isoTime);
+    url = 'https://www.googleapis.com/youtube/v3/videos?id=' + data + '&part=contentDetails,snippet&key=' + process.env.API_KEY;
+    const response = await request.get(url);
+    const deleted = isDeleted(response);
+    if (!deleted) {
+      const isoTime = response.body.items[0].contentDetails.duration;
+      let duration = convertTime(isoTime);
+      let title = response.body.items[0].snippet.title;
+      let requester = message.member.user.username;
+      return createQueueObject(title, duration, requester, data, isoTime);
+    }
+    return false;
   } catch (e) {
-    console.log('ERROR - catch', arguments.callee.name, e);
+    console.log('ERROR', e);
+    return false;
+  }
+};
+
+isDeleted = (obj) => {
+  try {
+    return !obj.body.items[0].contentDetails;
+  } catch (e) {
+    return true;
   }
 };
 

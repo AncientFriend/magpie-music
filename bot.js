@@ -205,7 +205,7 @@ client.on('message', async message => {
          */
         if (isRdy) {
           isRdy = false;
-          Commands.export(message);
+          Commands.export(args, message);
           isRdy = true;
         }
         break;
@@ -219,6 +219,12 @@ client.on('message', async message => {
           isRdy = true;
         }
         break;
+      case 'playlist':
+        if (isRdy) {
+          isRdy = false;
+          Commands.playlist(args, message);
+          isRdy = true;
+        }
       default:
         console.log('LOG - default');
         break;

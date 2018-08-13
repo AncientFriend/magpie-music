@@ -27,6 +27,7 @@
     "moment": "^2.22.2",
     "node-opus": "^0.3.0",
     "pastebin-js": "^0.5.1",
+    "pg": "^7.4.3",
     "snekfetch": "^4.0.2",
     "uws": "^10.148.0",
     "youtube-api": "^2.0.9",
