@@ -106,6 +106,7 @@ client.on('message', async message => {
           isRdy = true;
         }
         break;
+      case 'stop':
       case 'pause':
       /* NOTE pause
        * pauses song thats playing atm
@@ -223,6 +224,12 @@ client.on('message', async message => {
         if (isRdy) {
           isRdy = false;
           Commands.playlist(args, message);
+          isRdy = true;
+        }
+      case 'help':
+        if (isRdy) {
+          isRdy = false;
+          Commands.help(args, message);
           isRdy = true;
         }
       default:

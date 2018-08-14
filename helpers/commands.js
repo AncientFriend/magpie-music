@@ -9,6 +9,7 @@ const BotHelper = require('./botHelper.js');
 const moment = require('moment');
 const Collections = require('./collections.js');
 const base64 = require('base-64');
+const strings = require('./strings.json');
 
 const { Client } = require('pg');
 const dispatcher = Dispatcher.getInstance();
@@ -189,7 +190,7 @@ module.exports.clear = async (args, message) => {
 
 module.exports.list = async (args, message) => {
   try {
-    message.channel.send(Collections.commands);
+    message.channel.send('```' + Collections.commands.join('\n') + '```');
   } catch (e) {
     console.log('ERROR - catch', arguments.callee.name, e);
   }
@@ -278,6 +279,20 @@ module.exports.import = async (message, args) => {
     const input = args.join(' ');
     const list = JSON.parse(base64.decode(input));
     this.add(list, message);
+  } catch (e) {
+    console.log('ERROR - catch', arguments.callee.name, e);
+  }
+};
+
+module.exports.help = (args, message) => {
+  try {
+    let command = args[0];
+    if (Object.keys(Collections.mapping).includes(args[0])) {
+      command = Collections.mapping[args[0]];
+    }
+    if (Object.keys(Collections.explanations).includes(command)) {
+      message.channel.send('syntax:' + '```' + Collections.explanations[command].syntax + '```' + 'description:' + '```' + Collections.explanations[command].desc + '```' + 'alias' + '```' + Collections.explanations[command].alias + '```');
+    }
   } catch (e) {
     console.log('ERROR - catch', arguments.callee.name, e);
   }

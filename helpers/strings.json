@@ -1,7 +1,7 @@
 {
   "cmds": {
     "play": {
-
+      "errorNotFound": "sorry cant find your voiceChannel"
     },
     "leave": {
       "success": "bye",
