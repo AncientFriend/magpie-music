@@ -78,10 +78,10 @@ module.exports.playlist = async (args, message) => {
   try {
     const ytUrl = args[0];
     if (ytUrl.includes('youtube') && ytUrl.includes('playlist')) {
-      const mapping = {'{PLAYLIST_ID}': ytUrl.split('list=')[1].split('&')[0], '{API_KEY}': process.env.API_KEY, '{TOKEN}': ''};
-      const url = 'https://www.googleapis.com/youtube/v3/playlistItems?part=snippet%2CcontentDetails&maxResults=50&playlistId={PLAYLIST_ID}&key={API_KEY}&nextPageToken={TOKEN}';
-      let response = (await request.get(url.replace(new RegExp('{PLAYLIST_ID}|{API_KEY}|{TOKEN}', 'gi'), function (matched) { return mapping[matched]; }))).body;
-      const nextPageToken = response.nextPageToken || false;
+      let mapping = {'{PLAYLIST_ID}': ytUrl.split('list=')[1].split('&')[0], '{API_KEY}': process.env.API_KEY, '{TOKEN}': ''};
+      const url = 'https://www.googleapis.com/youtube/v3/playlistItems?part=snippet%2CcontentDetails&maxResults=50&playlistId={PLAYLIST_ID}&key={API_KEY}&pageToken={TOKEN}';
+      const response = (await request.get(url.replace(new RegExp('{PLAYLIST_ID}|{API_KEY}|{TOKEN}', 'gi'), function (matched) { return mapping[matched]; }))).body;
+      let nextPageToken = response.nextPageToken || false;
       const ids = [];
       let delets = 0;
       response.items.forEach(item => {
@@ -89,6 +89,20 @@ module.exports.playlist = async (args, message) => {
         if (item.snippet.title === 'Deleted video') delets++;
       });
       this.add(ids, message, delets);
+      while (nextPageToken) {
+        mapping['{TOKEN}'] = nextPageToken;
+        nextPageToken = false;
+        const newUrl = url.replace(new RegExp('{PLAYLIST_ID}|{API_KEY}|{TOKEN}', 'gi'), function (matched) { return mapping[matched]; });
+        let additionalPages = (await request.get(newUrl)).body;
+        nextPageToken = additionalPages.nextPageToken || false;
+        const ids = [];
+        let delets = 0;
+        additionalPages.items.forEach(item => {
+          ids.push(item.snippet.resourceId.videoId);
+          if (item.snippet.title === 'Deleted video') delets++;
+        });
+        this.add(ids, message, delets);
+      }
     }
   } catch (e) {
     console.log('ERROR - catch', arguments.callee.name, e);
