@@ -226,12 +226,29 @@ client.on('message', async message => {
           Commands.playlist(args, message);
           isRdy = true;
         }
+        break;
       case 'help':
         if (isRdy) {
           isRdy = false;
           Commands.help(args, message);
           isRdy = true;
         }
+        break;
+      case 'shuffle':
+        if (isRdy) {
+          isRdy = false;
+          Commands.shuffle(message, args);
+          isRdy = true;
+        }
+        break;
+      case 'next':
+      case 'skip':
+        if (isRdy) {
+          isRdy = false;
+          Commands.skip(message, args);
+          isRdy = true;
+        }
+        break;
       default:
         console.log('LOG - default');
         break;

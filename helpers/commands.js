@@ -15,6 +15,7 @@ const { Client } = require('pg');
 const dispatcher = Dispatcher.getInstance();
 const queue = Queue.getInstance();
 const cache = Cache.getInstance();
+let openConnection;
 const pgClient = new Client({
   connectionString: process.env.DATABASE_URL,
   ssl: true
@@ -23,7 +24,6 @@ const pgClient = new Client({
 module.exports.play = async (args, message) => {
   console.warn('Play');
   try {
-    let openConnection;
     let conn;
     let voiceChannel = message.member.voiceChannel;
     if (!voiceChannel) {
@@ -188,6 +188,15 @@ module.exports.clear = async (args, message) => {
   }
 };
 
+module.exports.skip = async (message, args) => {
+  try {
+    dispatcher.destroy();
+    playSong(queue.getNextTitle().id, openConnection);
+  } catch (e) {
+    console.log('ERROR - catch', arguments.callee.name, e);
+  }
+};
+
 module.exports.list = async (args, message) => {
   try {
     message.channel.send('```' + Collections.commands.join('\n') + '```');
@@ -284,6 +293,16 @@ module.exports.import = async (message, args) => {
   }
 };
 
+module.exports.shuffle = async (message, args) => {
+  try {
+    const shuffle = queue.shuffle();
+    console.warn(shuffle ? 'shuffle on' : 'shuffle of');
+    message.channel.send(shuffle ? 'shuffle on' : 'shuffle of');
+  } catch (e) {
+    console.log('ERROR - catch', arguments.callee.name, e);
+  }
+};
+
 module.exports.help = (args, message) => {
   try {
     let command = args[0];
@@ -291,7 +310,12 @@ module.exports.help = (args, message) => {
       command = Collections.mapping[args[0]];
     }
     if (Object.keys(Collections.explanations).includes(command)) {
-      message.channel.send('syntax:' + '```' + Collections.explanations[command].syntax + '```' + 'description:' + '```' + Collections.explanations[command].desc + '```' + 'alias' + '```' + Collections.explanations[command].alias + '```');
+      message.channel.send(
+        'syntax:' + '```' + Collections.explanations[command].syntax + '```' +
+        'description:' + '```' + Collections.explanations[command].desc + '```' +
+        Collections.explanations[command].alias ?
+        'alias' + '```' + Collections.explanations[command].alias + '```' :
+        '');
     }
   } catch (e) {
     console.log('ERROR - catch', arguments.callee.name, e);

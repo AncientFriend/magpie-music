@@ -14,7 +14,9 @@ module.exports.commands = [
   'find\nsearch',
   'ping',
   'playlist',
-  'WIP export\nimport'
+  'WIP export\nWIP import',
+  'shuffle',
+  'skip'
 ];
 
 module.exports.mapping = {
@@ -121,6 +123,17 @@ module.exports.explanations = {
     desc: 'explains the use of given command',
     alias: [
       'info'
+    ]
+  },
+  shuffle: {
+    syntax: '!shuffle',
+    desc: 'toggles shufflemode'
+  },
+  skip: {
+    syntax: '!skip',
+    desc: 'skipps the next song',
+    alias: [
+      'next'
     ]
   }
 };

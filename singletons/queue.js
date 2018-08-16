@@ -1,5 +1,6 @@
 module.exports = (function () {
   let instance; // prevent modification of "instance" variable
+  let shuffle = false;
   function Singleton () {
     if (instance) {
       return instance;
@@ -43,9 +44,21 @@ module.exports = (function () {
     }
   };
 
+  Singleton.prototype.shuffle = () => {
+    try {
+      shuffle = !shuffle;
+      return shuffle;
+    } catch (e) {
+      console.log('ERROR - shuffle', e);
+    }
+  };
+
   Singleton.prototype.getNextTitle = () => {
     try {
-      return this.queue.shift();
+      const index = shuffle ? Math.floor(Math.random() * this.queue.length) : 0;
+      const title = this.queue[index];
+      this.queue.splice(index, 1);
+      return title;
     } catch (e) {
       console.log('ERROR - getNextTitle', e);
       return false;
