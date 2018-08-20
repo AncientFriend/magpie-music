@@ -249,6 +249,13 @@ client.on('message', async message => {
           isRdy = true;
         }
         break;
+      case 'volume':
+        if (isRdy) {
+          isRdy = false;
+          Commands.volume(message, args);
+          isRdy = true;
+        }
+        break;
       default:
         console.log('LOG - default');
         break;

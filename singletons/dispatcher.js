@@ -24,6 +24,15 @@ module.exports = (function () {
     }
   };
 
+  Singleton.prototype.getDispatcher = () => {
+    try {
+      return this.dispatcher;
+    } catch (e) {
+      console.log('ERROR - setDispatcher', e);
+      return false;
+    }
+  };
+
   Singleton.prototype.resume = () => {
     try {
       this.dispatcher.resume();
@@ -34,9 +43,9 @@ module.exports = (function () {
     }
   };
 
-  Singleton.prototype.destroy = () => {
+  Singleton.prototype.end = () => {
     try {
-      this.dispatcher.destroy();
+      this.dispatcher.end();
       return true;
     } catch (e) {
       console.log('ERROR - destroy', e);
@@ -46,7 +55,7 @@ module.exports = (function () {
 
   Singleton.prototype.end = () => {
     try {
-      this.dispatcher.end();
+      this.dispatcher.destroy();
       return true;
     } catch (e) {
       console.log('ERROR - end', e);

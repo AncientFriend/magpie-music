@@ -16,6 +16,8 @@ const dispatcher = Dispatcher.getInstance();
 const queue = Queue.getInstance();
 const cache = Cache.getInstance();
 let openConnection;
+let lastMessage;
+
 const pgClient = new Client({
   connectionString: process.env.DATABASE_URL,
   ssl: true
@@ -38,9 +40,11 @@ module.exports.play = async (args, message) => {
     if (dispatcherIsPaused) {
       dispatcher.resume();
     } else if (args.length > 0) {
-      playSong(args[0], openConnection);
+      playSong(args[0], openConnection, message);
     } else if (!queue.isEmpty()) {
-      playSong(queue.getNextTitle().id, openConnection);
+      const item = queue.getNextTitle();
+      message.channel.send('now playing: ```' + item.title + '```');
+      playSong(item.id, openConnection, message);
     } else {
       console.log('queue is empty and no arguments given');
     }
@@ -190,8 +194,7 @@ module.exports.clear = async (args, message) => {
 
 module.exports.skip = async (message, args) => {
   try {
-    dispatcher.destroy();
-    playSong(queue.getNextTitle().id, openConnection);
+    dispatcher.end('end');
   } catch (e) {
     console.log('ERROR - catch', arguments.callee.name, e);
   }
@@ -245,6 +248,17 @@ module.exports.debug = async (args, message) => {
   }
 };
 
+module.exports.volume = async (message, args) => {
+  let disp = dispatcher.getDispatcher();
+  if (!args[0]) {
+    message.channel.send('Volume at: ' + disp.volume * 5);
+  } else {
+    disp.setVolume(args[0] / 5);
+    message.channel.send('Volume now at : ' + disp.volume * 5);
+  }
+  dispatcher.setDispatcher(disp);
+};
+
 module.exports.export = async (args, message) => {
   try {
     message.channel.send('functionallity is beeing worked on right now');
@@ -296,8 +310,8 @@ module.exports.import = async (message, args) => {
 module.exports.shuffle = async (message, args) => {
   try {
     const shuffle = queue.shuffle();
-    console.warn(shuffle ? 'shuffle on' : 'shuffle of');
-    message.channel.send(shuffle ? 'shuffle on' : 'shuffle of');
+    console.warn(shuffle ? 'shuffle on' : 'shuffle off');
+    message.channel.send(shuffle ? 'shuffle on' : 'shuffle off');
   } catch (e) {
     console.log('ERROR - catch', arguments.callee.name, e);
   }
@@ -322,25 +336,30 @@ module.exports.help = (args, message) => {
   }
 };
 
-playSong = (song, connection) => {
+playSong = (song, connection, message) => {
+  lastMessage = message;
   try {
+    message = message;
     const id = getId(song);
     if (id) {
-      const conn = connection.playStream(Ytdl(id, {filter: 'audioonly'}));
-      dispatcher.setDispatcher(conn);
+      openConnection.playStream(Ytdl(id, {filter: 'audioonly'}));
+      dispatcher.setDispatcher(openConnection.playStream(Ytdl(id, {filter: 'audioonly'})));
     } else {
       console.log('please use youtubelinks or id\'s');
     }
+    dispatcher.on('end', end => {
+      if (!queue.isEmpty()) {
+        const item = queue.getNextTitle();
+        const message = 'now playing: ```' + item.title + '```';
+        lastMessage.channel.send(message);
+        playSong(item.id, openConnection, lastMessage);
+      } else {
+        openConnection.channel.leave();
+      }
+    });
   } catch (e) {
     console.log('ERROR - catch', arguments.callee.name, e);
   }
-  dispatcher.on('end', end => {
-    if (!queue.isEmpty()) {
-      playSong(queue.getNextTitle().id, connection);
-    } else {
-      connection.channel.leave();
-    }
-  });
 };
 
 getInfo = async (data, message) => {
