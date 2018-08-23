@@ -11,17 +11,17 @@ const Collections = require('./collections.js');
 const base64 = require('base-64');
 const strings = require('./strings.json');
 
-const { Client } = require('pg');
 const dispatcher = Dispatcher.getInstance();
 const queue = Queue.getInstance();
 const cache = Cache.getInstance();
 let openConnection;
 let lastMessage;
 
-const pgClient = new Client({
-  connectionString: process.env.DATABASE_URL,
-  ssl: true
-});
+let Client;
+
+module.exports.setClient = (client) => {
+  Client = client;
+};
 
 module.exports.play = async (args, message) => {
   console.warn('Play');
@@ -140,14 +140,17 @@ module.exports.queue = async (args, message) => {
 
 module.exports.leave = async (args, message) => {
   try {
-    const voiceChannel = message.member.voiceChannel;
-    if (voiceChannel) {
-      try {
-        voiceChannel.leave();
-      } catch (e) {
-        console.log('ERROR - e', e);
-      }
-    }
+    message.channel.send('dissabled because of a breaking bug. If the bot has to leave the channel you can use debug (empties queue)');
+    // console.warn(client.user.presence);
+    // const voiceChannel = message.member.voiceChannel;
+    // if (voiceChannel) {
+    //   try {
+    //     dispatcher.setDispatcher();
+    //     voiceChannel.leave();
+    //   } catch (e) {
+    //     console.log('ERROR - e', e);
+    //   }
+    // }
   } catch (e) {
     console.log('ERROR - catch', arguments.callee.name, e);
   }
