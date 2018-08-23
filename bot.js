@@ -249,6 +249,7 @@ client.on('message', async message => {
           isRdy = true;
         }
         break;
+      case 'v':
       case 'volume':
         if (isRdy) {
           isRdy = false;

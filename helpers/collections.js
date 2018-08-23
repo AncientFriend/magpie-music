@@ -16,7 +16,8 @@ module.exports.commands = [
   'playlist',
   'WIP export\nWIP import',
   'shuffle',
-  'skip'
+  'skip\nnext',
+  'v\nvolume'
 ];
 
 module.exports.mapping = {
@@ -30,7 +31,9 @@ module.exports.mapping = {
   commands: 'list',
   info: 'help',
   find: 'search',
-  stop: 'pause'
+  stop: 'pause',
+  v: 'volume',
+  next: 'skip'
 
 };
 
@@ -134,6 +137,13 @@ module.exports.explanations = {
     desc: 'skipps the next song',
     alias: [
       'next'
+    ]
+  },
+  volume: {
+    syntax: '!volume <argument>',
+    desc: 'displays the volume\nif given a volume changes volum eto given number\n(1-10 no reduction in quality - 5 normal)',
+    alias: [
+      'v'
     ]
   }
 };

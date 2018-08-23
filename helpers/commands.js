@@ -46,7 +46,7 @@ module.exports.play = async (args, message) => {
       message.channel.send('now playing: ```' + item.title + '```');
       playSong(item.id, openConnection, message);
     } else {
-      console.log('queue is empty and no arguments given');
+      message.channel.send('queue is empty and no arguments given');
     }
   } catch (e) {
     console.log('ERROR - catch', arguments.callee.name, e);
@@ -249,14 +249,22 @@ module.exports.debug = async (args, message) => {
 };
 
 module.exports.volume = async (message, args) => {
-  let disp = dispatcher.getDispatcher();
-  if (!args[0]) {
-    message.channel.send('Volume at: ' + disp.volume * 5);
-  } else {
-    disp.setVolume(args[0] / 5);
-    message.channel.send('Volume now at : ' + disp.volume * 5);
+  try {
+    let disp = dispatcher.getDispatcher();
+    if (disp) {
+      if (!args[0]) {
+        message.channel.send('Volume at: ' + disp.volume * 5);
+      } else {
+        disp.setVolume(args[0] / 5);
+        message.channel.send('Volume now at : ' + disp.volume * 5);
+      }
+      dispatcher.setDispatcher(disp);
+    } else {
+      message.channel.send('nothing playing');
+    }
+  } catch (e) {
+    console.log('ERROR - catch', arguments.callee.name, e);
   }
-  dispatcher.setDispatcher(disp);
 };
 
 module.exports.export = async (args, message) => {
@@ -327,9 +335,9 @@ module.exports.help = (args, message) => {
       message.channel.send(
         'syntax:' + '```' + Collections.explanations[command].syntax + '```' +
         'description:' + '```' + Collections.explanations[command].desc + '```' +
-        Collections.explanations[command].alias ?
+        (Collections.explanations[command].alias ?
         'alias' + '```' + Collections.explanations[command].alias + '```' :
-        '');
+        ''));
     }
   } catch (e) {
     console.log('ERROR - catch', arguments.callee.name, e);
